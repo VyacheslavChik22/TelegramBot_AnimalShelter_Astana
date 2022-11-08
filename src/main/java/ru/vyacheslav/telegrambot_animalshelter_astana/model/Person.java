@@ -8,5 +8,5 @@ import javax.persistence.Id;
 public class Person {
     @Id
     @GeneratedValue
-    private long id;
+    private Long id;
 }

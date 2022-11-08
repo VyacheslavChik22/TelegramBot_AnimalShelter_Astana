@@ -7,5 +7,6 @@ import javax.persistence.Id;
 public class Animal {
     @Id
     @GeneratedValue
-    private long id;
+    private Long id;
+
 }

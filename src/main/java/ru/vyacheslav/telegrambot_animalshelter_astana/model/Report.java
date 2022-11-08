@@ -9,5 +9,5 @@ import javax.persistence.Id;
 public class Report {
     @Id
     @GeneratedValue
-    private long id;
+    private Long id;
 }

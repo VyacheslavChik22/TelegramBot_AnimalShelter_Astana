@@ -4,4 +4,4 @@
 В проекте участвуют студенты SkyPro:
 1. Надежда  - https://github.com/GabrielNMP
 2. Олег -  https://github.com/Lexxkit
-3. Вячеслав .- https://github.com/VyacheslavChik22
+3. Вячеслав - https://github.com/VyacheslavChik22

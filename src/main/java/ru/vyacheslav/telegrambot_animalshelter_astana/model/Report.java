@@ -3,7 +3,6 @@ package ru.vyacheslav.telegrambot_animalshelter_astana.model;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -15,10 +14,11 @@ public class Report {
     private String photoPath;
     private Integer photoSize;
     private String mediaType;
+    @Lob
     private byte[] photoData;
     private String description;
     private LocalDate reportDate;
-    private Long personId;
+
 
     public Report() {
     }
@@ -35,7 +35,7 @@ public class Report {
         this.person = person;
     }
 
-    public Report(Long id, String photoPath, Integer photoSize, String mediaType, byte[] photoData, String description, LocalDate reportDate, Long personId) {
+    public Report(Long id, String photoPath, Integer photoSize, String mediaType, byte[] photoData, String description, LocalDate reportDate) {
         this.id = id;
         this.photoPath = photoPath;
         this.photoSize = photoSize;
@@ -43,7 +43,6 @@ public class Report {
         this.photoData = photoData;
         this.description = description;
         this.reportDate = reportDate;
-        this.personId = personId;
     }
 
 
@@ -103,25 +102,19 @@ public class Report {
         this.reportDate = reportDate;
     }
 
-    public Long getPersonId() {
-        return personId;
-    }
 
-    public void setPersonId(Long personId) {
-        this.personId = personId;
-    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Report report = (Report) o;
-        return Objects.equals(id, report.id) && Objects.equals(photoPath, report.photoPath) && Objects.equals(photoSize, report.photoSize) && Objects.equals(mediaType, report.mediaType) && Arrays.equals(photoData, report.photoData) && Objects.equals(description, report.description) && Objects.equals(reportDate, report.reportDate) && Objects.equals(personId, report.personId);
+        return Objects.equals(id, report.id) && Objects.equals(photoPath, report.photoPath) && Objects.equals(photoSize, report.photoSize) && Objects.equals(mediaType, report.mediaType) && Arrays.equals(photoData, report.photoData) && Objects.equals(description, report.description) && Objects.equals(reportDate, report.reportDate);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, photoPath, photoSize, mediaType, description, reportDate, personId);
+        int result = Objects.hash(id, photoPath, photoSize, mediaType, description, reportDate);
         result = 31 * result + Arrays.hashCode(photoData);
         return result;
     }
@@ -136,7 +129,6 @@ public class Report {
                 ", photoData=" + Arrays.toString(photoData) +
                 ", description='" + description + '\'' +
                 ", reportDate=" + reportDate +
-                ", personId=" + personId +
                 '}';
     }
 }

@@ -1,6 +1,9 @@
 package ru.vyacheslav.telegrambot_animalshelter_astana.model;
 
 import javax.persistence.*;
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -11,21 +14,38 @@ public class Report {
     private Long id;
     private String photoPath;
     private Integer photoSize;
+    private String mediaType;
+    private byte[] photoData;
     private String description;
-    private String reportDate;
+    private LocalDate reportDate;
     private Long personId;
 
     public Report() {
     }
 
-    public Report(Long id, String photoPath, Integer photoSize, String description, String reportDate, Long personId) {
+    @ManyToOne
+    @JoinColumn(name = "personId")
+    private Person person;
+
+    public Person getPerson() {
+        return person;
+    }
+
+    public void setPerson(Person person) {
+        this.person = person;
+    }
+
+    public Report(Long id, String photoPath, Integer photoSize, String mediaType, byte[] photoData, String description, LocalDate reportDate, Long personId) {
         this.id = id;
         this.photoPath = photoPath;
         this.photoSize = photoSize;
+        this.mediaType = mediaType;
+        this.photoData = photoData;
         this.description = description;
         this.reportDate = reportDate;
         this.personId = personId;
     }
+
 
     public Long getId() {
         return id;
@@ -51,6 +71,22 @@ public class Report {
         this.photoSize = photoSize;
     }
 
+    public String getMediaType() {
+        return mediaType;
+    }
+
+    public void setMediaType(String mediaType) {
+        this.mediaType = mediaType;
+    }
+
+    public byte[] getPhotoData() {
+        return photoData;
+    }
+
+    public void setPhotoData(byte[] photoData) {
+        this.photoData = photoData;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -59,11 +95,11 @@ public class Report {
         this.description = description;
     }
 
-    public String getReportDate() {
+    public LocalDate getReportDate() {
         return reportDate;
     }
 
-    public void setReportDate(String reportDate) {
+    public void setReportDate(LocalDate reportDate) {
         this.reportDate = reportDate;
     }
 
@@ -80,12 +116,14 @@ public class Report {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Report report = (Report) o;
-        return Objects.equals(id, report.id) && Objects.equals(photoPath, report.photoPath) && Objects.equals(photoSize, report.photoSize) && Objects.equals(description, report.description) && Objects.equals(reportDate, report.reportDate) && Objects.equals(personId, report.personId);
+        return Objects.equals(id, report.id) && Objects.equals(photoPath, report.photoPath) && Objects.equals(photoSize, report.photoSize) && Objects.equals(mediaType, report.mediaType) && Arrays.equals(photoData, report.photoData) && Objects.equals(description, report.description) && Objects.equals(reportDate, report.reportDate) && Objects.equals(personId, report.personId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, photoPath, photoSize, description, reportDate, personId);
+        int result = Objects.hash(id, photoPath, photoSize, mediaType, description, reportDate, personId);
+        result = 31 * result + Arrays.hashCode(photoData);
+        return result;
     }
 
     @Override
@@ -94,8 +132,10 @@ public class Report {
                 "id=" + id +
                 ", photoPath='" + photoPath + '\'' +
                 ", photoSize=" + photoSize +
+                ", mediaType='" + mediaType + '\'' +
+                ", photoData=" + Arrays.toString(photoData) +
                 ", description='" + description + '\'' +
-                ", reportDate='" + reportDate + '\'' +
+                ", reportDate=" + reportDate +
                 ", personId=" + personId +
                 '}';
     }

@@ -1,8 +1,12 @@
 package ru.vyacheslav.telegrambot_animalshelter_astana.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "Person")
@@ -17,8 +21,8 @@ public class Person {
     private String address;
     private Long chatId;
     private Long animalId;
-    private String animalAdoptDate;
-    private String lastReportDate;
+    private LocalDate animalAdoptDate;
+    private LocalDate lastReportDate;
 
 
 
@@ -33,17 +37,16 @@ public class Person {
     public void setAnimal(Animal animal) {
         this.animal = animal;
     }
+    @JsonIgnore
+    @OneToMany(mappedBy = "personId")
+    private Set <Report> reports;
 
-    @OneToMany
-    @JoinColumn(name = "reportId")
-    private List<Report> reportId;
-
-    public List<Report> getReportId() {
-        return reportId;
+    public Set<Report> getReportId() {
+        return reports;
     }
 
-    public void setReportId(List<Report> reportId) {
-        this.reportId = reportId;
+    public void setReportId(Set<Report> reports) {
+        this.reports = reports;
     }
 
 
@@ -51,7 +54,7 @@ public class Person {
 
     }
 
-    public Person(Long id, String name, Long personId, String email, String phone, String address, Long chatId, Long animalId, String animalAdoptDate, String lastReportDate) {
+    public Person(Long id, String name, Long personId, String email, String phone, String address, Long chatId, Long animalId, LocalDate animalAdoptDate, LocalDate lastReportDate) {
         this.id = id;
         this.name = name;
         this.personId = personId;
@@ -128,19 +131,19 @@ public class Person {
         this.animalId = animalId;
     }
 
-    public String getAnimalAdoptDate() {
+    public LocalDate getAnimalAdoptDate() {
         return animalAdoptDate;
     }
 
-    public void setAnimalAdoptDate(String animalAdoptDate) {
+    public void setAnimalAdoptDate(LocalDate animalAdoptDate) {
         this.animalAdoptDate = animalAdoptDate;
     }
 
-    public String getLastReportDate() {
+    public LocalDate getLastReportDate() {
         return lastReportDate;
     }
 
-    public void setLastReportDate(String lastReportDate) {
+    public void setLastReportDate(LocalDate lastReportDate) {
         this.lastReportDate = lastReportDate;
     }
 

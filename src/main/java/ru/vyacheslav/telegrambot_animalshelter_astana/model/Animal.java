@@ -11,15 +11,13 @@ public class Animal {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private Long personId;
 
     public Animal() {
     }
 
-    public Animal(Long id, String name, Long personId) {
+    public Animal(Long id, String name) {
         this.id = id;
         this.name = name;
-        this.personId = personId;
     }
 
     public Long getId() {
@@ -38,25 +36,18 @@ public class Animal {
         this.name = name;
     }
 
-    public Long getPersonId() {
-        return personId;
-    }
-
-    public void setPersonId(Long personId) {
-        this.personId = personId;
-    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Animal animal = (Animal) o;
-        return Objects.equals(id, animal.id) && Objects.equals(name, animal.name) && Objects.equals(personId, animal.personId);
+        return Objects.equals(id, animal.id) && Objects.equals(name, animal.name) ;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, personId);
+        return Objects.hash(id, name);
     }
 
     @Override
@@ -64,7 +55,6 @@ public class Animal {
         return "Animal{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", personId=" + personId +
                 '}';
     }
 }

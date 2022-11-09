@@ -8,6 +8,7 @@ import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
 import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramBotConstants.GREETING_MSG;
 import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramBotConstants.START_CMD;
 
+@Service
 public class TelegramBotUpdatesListener implements UpdatesListener {
 
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);

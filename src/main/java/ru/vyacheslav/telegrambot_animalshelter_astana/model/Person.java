@@ -27,7 +27,7 @@ public class Person {
 
 
     @OneToOne
-    @JoinColumn(name = "animalId")
+    @JoinColumn(name = "animal_id")
     private Animal animal;
 
     public Animal getAnimal() {
@@ -38,7 +38,7 @@ public class Person {
         this.animal = animal;
     }
     @JsonIgnore
-    @OneToMany(mappedBy = "personId")
+    @OneToMany(mappedBy = "person")
     private Set <Report> reports;
 
     public Set<Report> getReportId() {

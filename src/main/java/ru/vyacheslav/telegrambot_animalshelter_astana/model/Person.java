@@ -14,12 +14,10 @@ public class Person {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private Long personId;
     private String email;
     private String phone;
     private String address;
     private Long chatId;
-    private Long animalId;
     private LocalDate animalAdoptDate;
     private LocalDate lastReportDate;
 
@@ -40,30 +38,29 @@ public class Person {
     @OneToMany(mappedBy = "person")
     private Set <Report> reports;
 
-    public Set<Report> getReportId() {
+    public Set<Report> getReports() {
         return reports;
     }
 
-    public void setReportId(Set<Report> reports) {
+    public void setReports(Set<Report> reports) {
         this.reports = reports;
     }
-
 
     public Person() {
 
     }
 
-    public Person(Long id, String name, Long personId, String email, String phone, String address, Long chatId, Long animalId, LocalDate animalAdoptDate, LocalDate lastReportDate) {
+    public Person(Long id, String name, String email, String phone, String address, Long chatId, LocalDate animalAdoptDate, LocalDate lastReportDate, Animal animal, Set<Report> reports) {
         this.id = id;
         this.name = name;
-        this.personId = personId;
         this.email = email;
         this.phone = phone;
         this.address = address;
         this.chatId = chatId;
-        this.animalId = animalId;
         this.animalAdoptDate = animalAdoptDate;
         this.lastReportDate = lastReportDate;
+        this.animal = animal;
+        this.reports = reports;
     }
 
     public Long getId() {
@@ -80,14 +77,6 @@ public class Person {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Long getPersonId() {
-        return personId;
-    }
-
-    public void setPersonId(Long personId) {
-        this.personId = personId;
     }
 
     public String getEmail() {
@@ -122,14 +111,6 @@ public class Person {
         this.chatId = chatId;
     }
 
-    public Long getAnimalId() {
-        return animalId;
-    }
-
-    public void setAnimalId(Long animalId) {
-        this.animalId = animalId;
-    }
-
     public LocalDate getAnimalAdoptDate() {
         return animalAdoptDate;
     }
@@ -151,12 +132,12 @@ public class Person {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Person person = (Person) o;
-        return Objects.equals(id, person.id) && Objects.equals(name, person.name) && Objects.equals(personId, person.personId) && Objects.equals(email, person.email) && Objects.equals(phone, person.phone) && Objects.equals(address, person.address) && Objects.equals(chatId, person.chatId) && Objects.equals(animalId, person.animalId) && Objects.equals(animalAdoptDate, person.animalAdoptDate) && Objects.equals(lastReportDate, person.lastReportDate);
+        return Objects.equals(id, person.id) && Objects.equals(name, person.name) && Objects.equals(email, person.email) && Objects.equals(phone, person.phone) && Objects.equals(address, person.address) && Objects.equals(chatId, person.chatId) && Objects.equals(animalAdoptDate, person.animalAdoptDate) && Objects.equals(lastReportDate, person.lastReportDate) && Objects.equals(animal, person.animal) && Objects.equals(reports, person.reports);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, personId, email, phone, address, chatId, animalId, animalAdoptDate, lastReportDate);
+        return Objects.hash(id, name, email, phone, address, chatId, animalAdoptDate, lastReportDate, animal, reports);
     }
 
     @Override
@@ -164,14 +145,13 @@ public class Person {
         return "Person{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", personId=" + personId +
                 ", email='" + email + '\'' +
                 ", phone='" + phone + '\'' +
                 ", address='" + address + '\'' +
                 ", chatId=" + chatId +
-                ", animalId=" + animalId +
-                ", animalAdoptDate='" + animalAdoptDate + '\'' +
-                ", lastReportDate='" + lastReportDate + '\'' +
+                ", animalAdoptDate=" + animalAdoptDate +
+                ", lastReportDate=" + lastReportDate +
+                ", animal=" + animal +
                 '}';
     }
 }

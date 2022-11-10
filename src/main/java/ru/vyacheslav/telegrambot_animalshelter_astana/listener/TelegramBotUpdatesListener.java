@@ -8,9 +8,14 @@ import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import ru.vyacheslav.telegrambot_animalshelter_astana.model.Report;
+import ru.vyacheslav.telegrambot_animalshelter_astana.repository.ReportRepository;
 
 import javax.annotation.PostConstruct;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramBotConstants.GREETING_MSG;
@@ -49,7 +54,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             if (START_CMD.equals(message.text())) {
                 // Send GREETINGS_MSG if START_CMD was found
                 logger.info("Bot start message was received: {}", message.text());
-                sendMessage(chatId, GREETING_MSG);
+                sendMessage(chatId, update.message().chat().username() + ", " + GREETING_MSG);
             }
         });
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
@@ -59,7 +64,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * Creates SendMessage instance for telegram chat with some text
      * and sends it to the chat.
      *
-     * @param chatId index of a telegram chat to which the message is sent
+     * @param chatId     index of a telegram chat to which the message is sent
      * @param textToSend string to be sent
      */
     private void sendMessage(Long chatId, String textToSend) {
@@ -72,4 +77,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             logger.warn("Message was not sent, error code: {}", response.errorCode());
         }
     }
+
+/*    @Scheduled(cron = "0 0 * * *") здесь должен быть метод для напоминания пользователю предоставить отчет
+
+    public void sendReminderMessage() {
+
+
+    }*/
 }

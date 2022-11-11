@@ -1,4 +1,4 @@
-package ru.vyacheslav.telegrambot_animalshelter_astana.repository.service;
+package ru.vyacheslav.telegrambot_animalshelter_astana.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

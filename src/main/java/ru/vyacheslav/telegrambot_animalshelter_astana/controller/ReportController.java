@@ -10,9 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Report;
-import ru.vyacheslav.telegrambot_animalshelter_astana.repository.service.ReportService;
+import ru.vyacheslav.telegrambot_animalshelter_astana.service.ReportService;
 
-import java.util.Collection;
 import java.util.List;
 
 @RestController

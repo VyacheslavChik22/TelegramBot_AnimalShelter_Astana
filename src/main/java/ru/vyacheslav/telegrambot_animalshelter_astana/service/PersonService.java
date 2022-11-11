@@ -2,7 +2,6 @@ package ru.vyacheslav.telegrambot_animalshelter_astana.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Person;
@@ -10,7 +9,6 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.repository.PersonRepositor
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Optional;
 
 /**
  * @author Oleg Alekseenko

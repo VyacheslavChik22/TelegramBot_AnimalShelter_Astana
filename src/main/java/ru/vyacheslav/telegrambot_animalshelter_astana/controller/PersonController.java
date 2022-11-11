@@ -1,5 +1,12 @@
 package ru.vyacheslav.telegrambot_animalshelter_astana.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Person;
@@ -20,6 +27,18 @@ public class PersonController {
         this.personService = personService;
     }
 
+    @Operation(
+            summary = "Get all people from DB",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Found people",
+                            content = {
+                                    @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                            array = @ArraySchema(schema = @Schema(implementation = Person.class))
+                                            )
+                            })
+            })
     @GetMapping
     public ResponseEntity<Collection<Person>> getAllPeople() {
         return ResponseEntity.ok(personService.findAll());

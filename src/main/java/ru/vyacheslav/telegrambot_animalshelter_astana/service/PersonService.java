@@ -58,8 +58,15 @@ public class PersonService {
         return personRepository.save(person);
     }
 
+    /**
+     * Delete person from the DB
+     *
+     * @param id identification number for person
+     * @throws PersonNotFoundException if no entry was found in DB
+     */
     public void deletePerson(long id) {
         logger.info("Was invoked method for delete person by id: {}", id);
-        personRepository.deleteById(id);
+        Person person = findPerson(id);
+        personRepository.delete(person);
     }
 }

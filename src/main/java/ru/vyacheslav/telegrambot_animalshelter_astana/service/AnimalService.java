@@ -4,7 +4,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Animal;
-import ru.vyacheslav.telegrambot_animalshelter_astana.repositiry.AnimalRepository;
+import ru.vyacheslav.telegrambot_animalshelter_astana.repository.AnimalRepository;
 
 import java.util.List;
 

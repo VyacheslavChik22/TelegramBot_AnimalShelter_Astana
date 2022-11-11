@@ -4,7 +4,10 @@ import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Objects;
-
+/**
+ * Report class from user
+ *
+ */
 @Entity
 @Table(name = "Report")
 public class Report {

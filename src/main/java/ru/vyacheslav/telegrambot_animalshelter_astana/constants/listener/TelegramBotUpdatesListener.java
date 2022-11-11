@@ -1,4 +1,4 @@
-package ru.vyacheslav.telegrambot_animalshelter_astana.listener;
+package ru.vyacheslav.telegrambot_animalshelter_astana.constants.listener;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
@@ -8,14 +8,10 @@ import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import ru.vyacheslav.telegrambot_animalshelter_astana.model.Report;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.ReportRepository;
 
 import javax.annotation.PostConstruct;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramBotConstants.GREETING_MSG;
@@ -23,6 +19,8 @@ import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramB
 
 @Service
 public class TelegramBotUpdatesListener implements UpdatesListener {
+
+   ReportRepository reportRepository;
 
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
 
@@ -78,10 +76,12 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         }
     }
 
-/*    @Scheduled(cron = "0 0 * * *") здесь должен быть метод для напоминания пользователю предоставить отчет
-
-    public void sendReminderMessage() {
 
 
-    }*/
+
+
+
+    //@Scheduled(cron = "0 0 * * *") //здесь должен быть метод для напоминания пользователю предоставить отчет
+
+
 }

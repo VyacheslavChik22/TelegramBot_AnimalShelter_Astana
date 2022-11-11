@@ -1,4 +1,4 @@
-package ru.vyacheslav.telegrambot_animalshelter_astana.repositiry;
+package ru.vyacheslav.telegrambot_animalshelter_astana.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

@@ -10,7 +10,7 @@ import java.util.List;
 
 @Service
 public class ReportService {
-    Logger logger = LoggerFactory.getLogger(ReportService.class);
+    private final   Logger logger = LoggerFactory.getLogger(ReportService.class);
     private final ReportRepository reportRepository;
 
     public ReportService(ReportRepository reportRepository) {
@@ -44,7 +44,7 @@ public class ReportService {
     /**
      * Editing and saving report
      */
-    public Report editReport(Report report) {
+    public Report editReport(Long id, Report report) {
         logger.debug("Request method editReport {}:", report);
         return reportRepository.save(report);
     }

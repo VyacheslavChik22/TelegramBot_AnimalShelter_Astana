@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +12,11 @@ import org.springframework.web.bind.annotation.*;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Report;
 import ru.vyacheslav.telegrambot_animalshelter_astana.service.ReportService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static org.hibernate.criterion.Projections.id;
 
 @RestController
 @RequestMapping("/reports")
@@ -93,9 +96,9 @@ public class ReportController {
     /**
      * Editing the report
      */
-    @PutMapping
-    public ResponseEntity<Report> editReport(@Parameter(description = "Редактируемый отчет") @RequestBody Report report) {
-        Report foundReport = reportService.editReport(report);
+    @PutMapping("/{id}")
+    public ResponseEntity<Report> editReport(@Parameter(description = "Редактируемый отчет") @PathVariable Long id, Report report) {
+        Report foundReport = reportService.editReport(id, report);
         if (foundReport == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }

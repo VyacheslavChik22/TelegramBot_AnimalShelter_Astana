@@ -20,13 +20,14 @@ import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramB
 @Service
 public class TelegramBotUpdatesListener implements UpdatesListener {
 
-   ReportRepository reportRepository;
+    private final ReportRepository reportRepository;
 
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
 
     private final TelegramBot telegramBot;
 
-    public TelegramBotUpdatesListener(TelegramBot telegramBot) {
+    public TelegramBotUpdatesListener(ReportRepository reportRepository, TelegramBot telegramBot) {
+        this.reportRepository = reportRepository;
         this.telegramBot = telegramBot;
     }
 

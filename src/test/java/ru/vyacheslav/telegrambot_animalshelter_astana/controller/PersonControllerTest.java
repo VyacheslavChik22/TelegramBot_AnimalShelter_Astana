@@ -107,6 +107,22 @@ public class PersonControllerTest {
     }
 
     @Test
+    void updatePersonTest() throws Exception {
+        Person testPerson = getTestPerson(1L, "Test 1");
+        JSONObject personObject = new JSONObject();
+        personObject.put("name", testPerson.getName());
+
+        when(personRepository.save(any(Person.class))).thenReturn(testPerson);
+
+        mockMvc.perform(put("/people")
+                        .content(personObject.toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(testPerson)));
+    }
+
+    @Test
     void deletePersonTest() throws Exception {
         when(personRepository.findById(anyLong())).thenReturn(Optional.of(getTestPerson(1, "Test 1")));
         doNothing().when(personRepository).delete(any(Person.class));

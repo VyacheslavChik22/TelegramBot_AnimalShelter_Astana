@@ -17,6 +17,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
+/**Unit tests for {@link PersonService} class with {@link PersonRepository} mock.
+ *
+ * @author Oleg Alekseenko
+ */
+
 @ExtendWith(MockitoExtension.class)
 public class PersonServiceTest {
     @Mock
@@ -71,6 +76,13 @@ public class PersonServiceTest {
 
         assertThat(result).isNotNull();
         assertThat(result).isEqualTo(testPerson);
+    }
+
+    @Test
+    void shouldThrowPersonNotFoundException_whenDeleteByWrongId() {
+        when(personRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> out.deletePerson(anyLong())).isInstanceOf(PersonNotFoundException.class);
     }
 
     private Person getTestPerson(long id, String name) {

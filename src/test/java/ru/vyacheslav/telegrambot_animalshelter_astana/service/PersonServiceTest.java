@@ -85,7 +85,7 @@ public class PersonServiceTest {
         assertThatThrownBy(() -> out.deletePerson(anyLong())).isInstanceOf(PersonNotFoundException.class);
     }
 
-    private Person getTestPerson(long id, String name) {
+    public static Person getTestPerson(long id, String name) {
         Person testPerson = new Person();
         testPerson.setId(id);
         testPerson.setName(name);

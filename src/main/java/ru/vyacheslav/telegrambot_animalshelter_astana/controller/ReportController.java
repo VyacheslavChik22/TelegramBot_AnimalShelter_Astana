@@ -12,11 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Report;
 import ru.vyacheslav.telegrambot_animalshelter_astana.service.ReportService;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import static org.hibernate.criterion.Projections.id;
 
 @RestController
 @RequestMapping("/reports")

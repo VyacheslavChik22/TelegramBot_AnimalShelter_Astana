@@ -1,7 +1,7 @@
 package ru.vyacheslav.telegrambot_animalshelter_astana.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +17,12 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.service.PersonService;
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.vyacheslav.telegrambot_animalshelter_astana.service.PersonServiceTest.getTestPerson;
 
 @WebMvcTest(controllers = PersonController.class)
@@ -71,5 +73,58 @@ public class PersonControllerTest {
         mockMvc.perform(get("/people/" + 1)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void createPersonTest() throws Exception {
+        Person testPerson = getTestPerson(1L, "Test 1");
+        JSONObject personObject = new JSONObject();
+        personObject.put("name", testPerson.getName());
+
+        when(personRepository.save(any(Person.class))).thenReturn(testPerson);
+
+        mockMvc.perform(post("/people")
+                        .content(personObject.toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(testPerson)));
+    }
+
+    @Test
+    void createPerson_whenBadRequestTest() throws Exception {
+        Person testPerson = getTestPerson(1L, "Test 1");
+        JSONObject personObject = new JSONObject();
+        personObject.put("name", testPerson.getName());
+
+        when(personRepository.save(any(Person.class))).thenReturn(null);
+
+        mockMvc.perform(post("/people")
+                        .content(personObject.toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deletePersonTest() throws Exception {
+        when(personRepository.findById(anyLong())).thenReturn(Optional.of(getTestPerson(1, "Test 1")));
+        doNothing().when(personRepository).delete(any(Person.class));
+
+        mockMvc.perform(delete("/people/" + 1))
+                .andExpect(status().isOk());
+
+        verify(personRepository, atLeastOnce()).delete(any(Person.class));
+    }
+
+    @Test
+    void deletePerson_whenNotFoundTest() throws Exception {
+        when(personRepository.findById(anyLong())).thenReturn(Optional.empty());
+        doNothing().when(personRepository).delete(any(Person.class));
+
+        mockMvc.perform(delete("/people/" + 1))
+                .andExpect(status().isNotFound());
+
+        verify(personRepository, never()).delete(any(Person.class));
     }
 }

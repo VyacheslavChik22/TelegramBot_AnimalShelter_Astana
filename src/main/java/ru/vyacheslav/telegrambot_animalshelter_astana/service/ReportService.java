@@ -3,6 +3,7 @@ package ru.vyacheslav.telegrambot_animalshelter_astana.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.ReportNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Report;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.ReportRepository;
 
@@ -30,7 +31,7 @@ public class ReportService {
      */
     public Report findReport(Long id) {
         logger.debug("Request method findReport {}:", id);
-        return reportRepository.findById(id).get();
+        return reportRepository.findById(id).orElseThrow(ReportNotFoundException::new);
     }
 
     /**

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.ReportNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Report;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.ReportRepository;
 
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -53,6 +55,13 @@ public class ReportServiceTest {
         assertThat(result).isNotNull();
         assertThat(result).isEqualTo(reportTest);
 
+    }
+
+
+    @Test
+    void shouldThrowPersonNotFoundExceptionIfRequestedIdNotFound() {
+        when(reportRepository.findById(anyLong())).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> out.findReport(anyLong())).isInstanceOf(ReportNotFoundException.class);
     }
 
     @Test

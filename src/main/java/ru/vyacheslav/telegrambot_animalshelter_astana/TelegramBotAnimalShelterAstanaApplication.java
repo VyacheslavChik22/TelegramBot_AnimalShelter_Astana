@@ -8,8 +8,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;;
 @EnableScheduling
 public class TelegramBotAnimalShelterAstanaApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(TelegramBotAnimalShelterAstanaApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(TelegramBotAnimalShelterAstanaApplication.class, args);
+    }
 
 }

@@ -25,6 +25,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.vyacheslav.telegrambot_animalshelter_astana.service.PersonServiceTest.getTestPerson;
 
+/**Integration tests for {@link PersonController} class.
+ *
+ * @author Oleg Alekseenko
+ */
 @WebMvcTest(controllers = PersonController.class)
 public class PersonControllerTest {
 
@@ -97,6 +101,7 @@ public class PersonControllerTest {
         JSONObject personObject = new JSONObject();
         personObject.put("name", testPerson.getName());
 
+
         when(personRepository.save(any(Person.class))).thenReturn(null);
 
         mockMvc.perform(post("/people")
@@ -110,8 +115,10 @@ public class PersonControllerTest {
     void updatePersonTest() throws Exception {
         Person testPerson = getTestPerson(1L, "Test 1");
         JSONObject personObject = new JSONObject();
+        personObject.put("id", testPerson.getId());
         personObject.put("name", testPerson.getName());
 
+        when(personRepository.existsById(anyLong())).thenReturn(true);
         when(personRepository.save(any(Person.class))).thenReturn(testPerson);
 
         mockMvc.perform(put("/people")
@@ -120,6 +127,25 @@ public class PersonControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(testPerson)));
+    }
+
+    @Test
+    void updatePerson_whenPersonIdNotFoundTest() throws Exception {
+        Person testPerson = getTestPerson(1L, "Test 1");
+        JSONObject personObject = new JSONObject();
+        personObject.put("id", testPerson.getId());
+        personObject.put("name", testPerson.getName());
+
+        when(personRepository.existsById(testPerson.getId())).thenReturn(false);
+        when(personRepository.save(any(Person.class))).thenReturn(testPerson);
+
+        mockMvc.perform(put("/people")
+                        .content(personObject.toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+
+        verify(personRepository, never()).save(testPerson);
     }
 
     @Test

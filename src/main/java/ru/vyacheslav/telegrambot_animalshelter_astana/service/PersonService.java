@@ -53,6 +53,10 @@ public class PersonService {
 
     public Person updatePerson(Person person) {
         logger.info("Was invoked method for update person");
+        if (person.getId() == null || !personRepository.existsById(person.getId())) {
+            logger.warn("Person with id: '{}' not found and could not be updated.", person.getId());
+            throw new PersonNotFoundException();
+        }
         return personRepository.save(person);
     }
 

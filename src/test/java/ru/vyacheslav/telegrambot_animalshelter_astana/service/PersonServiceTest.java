@@ -71,11 +71,22 @@ public class PersonServiceTest {
     void shouldUpdatePerson() {
         Person testPerson = getTestPerson(1, "Test 1");
 
+        when(personRepository.existsById(testPerson.getId())).thenReturn(true);
         when(personRepository.save(any(Person.class))).thenReturn(testPerson);
         Person result = out.updatePerson(testPerson);
 
         assertThat(result).isNotNull();
         assertThat(result).isEqualTo(testPerson);
+    }
+
+    @Test
+    void shouldThrowPersonNotFoundException_whenUpdatePersonWithWrongId() {
+        Person testPerson = getTestPerson(1, "Test 1");
+
+        when(personRepository.existsById(testPerson.getId())).thenReturn(false);
+
+        assertThatThrownBy(() -> out.updatePerson(testPerson)).isInstanceOf(PersonNotFoundException.class);
+        verify(personRepository, never()).save(testPerson);
     }
 
     @Test

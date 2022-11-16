@@ -63,31 +63,31 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
                 case "/menu":
                     logger.info("Bot start message was received: {}", message.text());
-                    getInfo(chatId, LIST_MENU);
+                    sendInfo(chatId, LIST_MENU);
                     break;
 
                 case "/info":
                     logger.info("Bot start message was received: {}", message.text());
-                    getInfo(chatId, INFO_TEXT);
+                    sendInfo(chatId, INFO_TEXT);
                     break;
 
                 case "/how":
                     logger.info("Bot start message was received: {}", message.text());
-                    getInfo(chatId, "Информация редактируется");
+                    sendInfo(chatId, HOW_TEXT);
                     break;
                 case "/report":
                     logger.info("Bot start message was received: {}", message.text());
-                    getInfo(chatId, "Информация редактируется");
+                    sendInfo(chatId, "Информация редактируется");
                     break;
 
                 case "/call":
                     logger.info("Bot start message was received: {}", message.text());
-                    getInfo(chatId, "Информация редактируется");
+                    sendInfo(chatId, CALL_TEXT);
                     break;
 
                 case "/repeat":
                     logger.info("Bot start message was received: {}", message.text());
-                    getInfo(chatId, "Информация редактируется");
+                    sendInfo(chatId, "Информация редактируется");
                     break;
 
                 default:
@@ -117,7 +117,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         }
     }
 
-    private void getInfo(Long chatId, String textToSend) {
+    private void sendInfo(Long chatId, String textToSend) {
         SendMessage sendMessage = new SendMessage(chatId, textToSend);
         SendResponse response = telegramBot.execute(sendMessage);
         // Check if msg was not sent and log the error

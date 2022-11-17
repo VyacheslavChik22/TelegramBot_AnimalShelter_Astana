@@ -17,6 +17,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
+/**Unit tests for {@link PersonService} class with {@link PersonRepository} mock.
+ *
+ * @author Oleg Alekseenko
+ */
+
 @ExtendWith(MockitoExtension.class)
 public class PersonServiceTest {
     @Mock
@@ -66,6 +71,7 @@ public class PersonServiceTest {
     void shouldUpdatePerson() {
         Person testPerson = getTestPerson(1, "Test 1");
 
+        when(personRepository.existsById(testPerson.getId())).thenReturn(true);
         when(personRepository.save(any(Person.class))).thenReturn(testPerson);
         Person result = out.updatePerson(testPerson);
 
@@ -73,7 +79,24 @@ public class PersonServiceTest {
         assertThat(result).isEqualTo(testPerson);
     }
 
-    private Person getTestPerson(long id, String name) {
+    @Test
+    void shouldThrowPersonNotFoundException_whenUpdatePersonWithWrongId() {
+        Person testPerson = getTestPerson(1, "Test 1");
+
+        when(personRepository.existsById(testPerson.getId())).thenReturn(false);
+
+        assertThatThrownBy(() -> out.updatePerson(testPerson)).isInstanceOf(PersonNotFoundException.class);
+        verify(personRepository, never()).save(testPerson);
+    }
+
+    @Test
+    void shouldThrowPersonNotFoundException_whenDeleteByWrongId() {
+        when(personRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> out.deletePerson(anyLong())).isInstanceOf(PersonNotFoundException.class);
+    }
+
+    public static Person getTestPerson(long id, String name) {
         Person testPerson = new Person();
         testPerson.setId(id);
         testPerson.setName(name);

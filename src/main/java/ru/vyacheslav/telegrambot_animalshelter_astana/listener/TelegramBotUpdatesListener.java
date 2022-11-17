@@ -1,4 +1,4 @@
-package ru.vyacheslav.telegrambot_animalshelter_astana.constants.listener;
+package ru.vyacheslav.telegrambot_animalshelter_astana.listener;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.TelegramException;

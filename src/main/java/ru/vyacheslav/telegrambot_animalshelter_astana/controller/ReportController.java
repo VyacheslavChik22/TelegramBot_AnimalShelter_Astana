@@ -119,7 +119,7 @@ public class ReportController {
      * Delete the report
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Report> deleteStudent(@Parameter(description = "Удаляемый отчет") @PathVariable Long id) {
+    public ResponseEntity<Report> deleteReport(@Parameter(description = "Удаляемый отчет") @PathVariable Long id) {
         if (id <= 0) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }

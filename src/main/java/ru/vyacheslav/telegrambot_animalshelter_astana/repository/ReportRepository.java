@@ -6,5 +6,5 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.model.Report;
 
 
 @Repository
-public interface ReportRepository extends JpaRepository<Report,Long> {
+public interface ReportRepository extends JpaRepository<Report, Long> {
 }

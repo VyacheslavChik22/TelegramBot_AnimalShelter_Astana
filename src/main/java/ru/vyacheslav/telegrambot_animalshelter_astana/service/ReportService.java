@@ -11,7 +11,7 @@ import java.util.List;
 
 @Service
 public class ReportService {
-    private final   Logger logger = LoggerFactory.getLogger(ReportService.class);
+    private final Logger logger = LoggerFactory.getLogger(ReportService.class);
     private final ReportRepository reportRepository;
 
     public ReportService(ReportRepository reportRepository) {

@@ -1,25 +1,32 @@
 package ru.vyacheslav.telegrambot_animalshelter_astana.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Report;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.ReportRepository;
-import static org.mockito.ArgumentMatchers.any;
-import java.time.LocalDate;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import ru.vyacheslav.telegrambot_animalshelter_astana.service.ReportService;
 
+import java.util.List;
+import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.vyacheslav.telegrambot_animalshelter_astana.service.ReportServiceTest.addTestReport;
 
 @WebMvcTest(ReportController.class)
-class ReportControllerTest {
+public class ReportControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -27,72 +34,77 @@ class ReportControllerTest {
     @MockBean
     private ReportRepository reportRepository;
 
+    @SpyBean
+    private ReportService reportService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @InjectMocks
     private ReportController reportController;
 
 
     @Test
-    public void saveReportsTest() throws Exception {
-        byte[] photoData = {10};
-        LocalDate reportDate = LocalDate.of(2022, 11, 15);
+    void getAllReportsTest() throws Exception {
+
+        Report testReport = addTestReport(1L, "test_text_report");
+        when(reportRepository.findAll()).thenReturn(List.of(testReport));
+
+        mockMvc.perform(get("/reports"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().json(objectMapper.writeValueAsString(List.of(testReport))));
+    }
+
+    @Test
+    void getReportByIdTest() throws Exception {
+        Report testReport = addTestReport(1L, "test_text_report");
+        when(reportRepository.findById(anyLong())).thenReturn(Optional.of(testReport));
+
+        mockMvc.perform(get("/reports/" + testReport.getId())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(testReport)));
+    }
+
+
+    @Test
+    void getReportById_whenNotFoundTest() throws Exception {
+        when(reportRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/report" + 1L)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+
+    @Test
+    void updateReportTest() throws Exception {
+        Report testReport = addTestReport(1L, "test_text_report");
         JSONObject reportObject = new JSONObject();
-        reportObject.put("Report1", new Report(1L, "path1", 320, "jpg", photoData, "test", reportDate));
+        reportObject.put("id", testReport.getId());
+        reportObject.put("description", testReport.getDescription());
 
-        Report report = new Report();
-        report.setId(1l);
-        report.setPhotoPath("path1");
-        report.setPhotoSize(320);
-        report.setMediaType("jpg");
-        report.setPhotoData(photoData);
-        report.setDescription("test");
-        report.setReportDate(reportDate);
+        when(reportRepository.save(any(Report.class))).thenReturn(testReport);
 
-        when(reportRepository.save(any(Report.class))).thenReturn(report);
-
-        mockMvc.perform(MockMvcRequestBuilders
-                        .post("/report")
+        mockMvc.perform(put("/reports/" + 1)
                         .content(reportObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(testReport)));
 
+    }
+
+    @Test
+    void deleteReportTest() throws Exception {
+        doNothing().when(reportRepository).deleteById(anyLong());
+        mockMvc.perform(delete("/reports/" + 1))
                 .andExpect(status().isOk());
-        /*        .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1L))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.PhotoPath").value("path1"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.PhotoSize").value(320))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.MediaType").value("jpg"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.PhotoData").value(photoData))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.Description").value("test"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.ReportDate").value(reportDate));*/
+
+        verify(reportRepository, atLeastOnce()).deleteById(anyLong());
 
 
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-    @Test
-    void getReportInfo() {
-    }
-
-    @Test
-    void editReport() {
-    }
-
-    @Test
-    void deleteReport() {
-    }
-}*/

@@ -43,7 +43,7 @@ public class ReportController {
     /**
      * We receive all reports
      */
-    @GetMapping("/all")
+    @GetMapping()
     public List<Report> getAllReports() {
         return reportService.findAllReports();
     }

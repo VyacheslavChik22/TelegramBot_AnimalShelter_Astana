@@ -1,16 +1,20 @@
 package ru.vyacheslav.telegrambot_animalshelter_astana.service;
 
-import org.springframework.data.domain.PageRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
+import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.AnimalNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Animal;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.AnimalRepository;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
 
 @Service
 public class AnimalService {
 
+    private final Logger logger = LoggerFactory.getLogger(AnimalService.class);
     private final AnimalRepository animalRepository;
 
     public AnimalService(AnimalRepository animalRepository) {
@@ -23,6 +27,7 @@ public class AnimalService {
      * @return Animal created
      */
     public Animal createAnimal(Animal animal) {
+        logger.info("Was invoked method to create new animal");
         return animalRepository.save(animal);
     }
 
@@ -30,10 +35,12 @@ public class AnimalService {
      * Search for an animal  in DB by ID
      * The repository method is being used{@link JpaRepository#findById(Object)}
      * @param id - animal ID, can't be {@code null}
+     * @throws AnimalNotFoundException if no entry was found in DB
      * @return Animal found
      */
     public Animal getAnimalInfoById(long id) {
-        return animalRepository.findById(id).orElseThrow();
+        logger.info("Was invoked method to get animal bi ID: {}", id);
+        return animalRepository.findById(id).orElseThrow(AnimalNotFoundException::new);
     }
 
     /**
@@ -41,18 +48,27 @@ public class AnimalService {
      * @return Total amount of animals
      */
     public int totalAmountOfAnimal() {
+        logger.info("Was invoked method for checking amount of animal in shelter");
         return animalRepository.totalAmountOfAnimal();
     }
 
     /**
      *List of all animals in the shelter, paginated
-     * @param pageNumber
-     * @param pageSize
      * @return List of animals by pages
      */
-    public List<Animal> allAnimalWithPagination(Integer pageNumber, Integer pageSize) {
-        PageRequest pageRequest = PageRequest.of(pageNumber-1, pageSize);
-        return animalRepository.findAll(pageRequest).getContent();
+    public Collection<Animal> getAllAnimals() {
+        logger.info("Was invoked method to get all animal");
+        return Collections.unmodifiableCollection(animalRepository.findAll());
     }
 
+    /**
+     * Delete animal from DB
+     * @param id
+     * @throws AnimalNotFoundException if no entry was found in DB
+     */
+    public void deleteAnimal(Long id){
+        logger.info("Was invoked method to delete animal with ID: {}", id);
+        Animal animal = getAnimalInfoById(id);
+        animalRepository.delete(animal);
+    }
 }

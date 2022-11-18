@@ -63,31 +63,44 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
                 case "/menu":
                     logger.info("Bot start message was received: {}", message.text());
-                    sendInfo(chatId, LIST_MENU);
+ 
+                    sendMessage(chatId, LIST_MENU);
+
+                   
+
                     break;
 
                 case "/info":
                     logger.info("Bot start message was received: {}", message.text());
-                    sendInfo(chatId, INFO_TEXT);
-                    break;
+
+                    sendMessage(chatId, INFO_TEXT);
+
+                   break;
 
                 case "/how":
                     logger.info("Bot start message was received: {}", message.text());
-                    sendInfo(chatId, HOW_TEXT);
+
+                    sendMessage(chatId, HOW_TEXT);
                     break;
                 case "/report":
                     logger.info("Bot start message was received: {}", message.text());
-                    sendInfo(chatId, "Информация редактируется");
+                    sendMessage(chatId, "Информация редактируется");
+
                     break;
 
                 case "/call":
                     logger.info("Bot start message was received: {}", message.text());
-                    sendInfo(chatId, CALL_TEXT);
+
+                    sendMessage(chatId, CALL_TEXT);
+                 
+
                     break;
 
                 case "/repeat":
                     logger.info("Bot start message was received: {}", message.text());
-                    sendInfo(chatId, "Информация редактируется");
+
+                    sendMessage(chatId, "Информация редактируется");
+
                     break;
 
                 default:
@@ -117,14 +130,6 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         }
     }
 
-    private void sendInfo(Long chatId, String textToSend) {
-        SendMessage sendMessage = new SendMessage(chatId, textToSend);
-        SendResponse response = telegramBot.execute(sendMessage);
-        // Check if msg was not sent and log the error
-        if (!response.isOk()) {
-            logger.warn("Message was not sent, error code: {}", response.errorCode());
-        }
-    }
     //@Scheduled(cron = "0 0 * * *") //здесь должен быть метод для напоминания пользователю предоставить отчет
 
 

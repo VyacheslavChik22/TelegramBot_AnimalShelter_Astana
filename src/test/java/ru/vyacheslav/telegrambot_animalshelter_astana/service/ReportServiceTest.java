@@ -76,7 +76,7 @@ public class ReportServiceTest {
     }
 
 
-    private Report addTestReport(long id, String description) {
+    public static Report addTestReport(long id, String description) {
         Report testReport = new Report();
         testReport.setId(id);
         testReport.setDescription(description);

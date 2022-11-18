@@ -63,31 +63,44 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
                 case "/menu":
                     logger.info("Bot start message was received: {}", message.text());
+ 
                     sendMessage(chatId, LIST_MENU);
+
+                   
+
                     break;
 
                 case "/info":
                     logger.info("Bot start message was received: {}", message.text());
+
                     sendMessage(chatId, INFO_TEXT);
-                    break;
+
+                   break;
 
                 case "/how":
                     logger.info("Bot start message was received: {}", message.text());
+
                     sendMessage(chatId, HOW_TEXT);
                     break;
                 case "/report":
                     logger.info("Bot start message was received: {}", message.text());
                     sendMessage(chatId, "Информация редактируется");
+
                     break;
 
                 case "/call":
                     logger.info("Bot start message was received: {}", message.text());
+
                     sendMessage(chatId, CALL_TEXT);
+                 
+
                     break;
 
                 case "/repeat":
                     logger.info("Bot start message was received: {}", message.text());
+
                     sendMessage(chatId, "Информация редактируется");
+
                     break;
 
                 default:
@@ -116,7 +129,6 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             logger.warn("Message was not sent, error code: {}", response.errorCode());
         }
     }
-
 
     //@Scheduled(cron = "0 0 * * *") //здесь должен быть метод для напоминания пользователю предоставить отчет
 

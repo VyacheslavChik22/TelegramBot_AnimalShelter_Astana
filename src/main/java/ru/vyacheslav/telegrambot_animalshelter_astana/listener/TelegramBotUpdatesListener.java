@@ -1,14 +1,13 @@
 package ru.vyacheslav.telegrambot_animalshelter_astana.listener;
 
 import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.TelegramException;
 import com.pengrad.telegrambot.UpdatesListener;
-import com.pengrad.telegrambot.model.BotCommand;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.model.botcommandscope.BotCommandScopeDefault;
+import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
+import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
+import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendMessage;
-import com.pengrad.telegrambot.request.SetMyCommands;
 import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,20 +60,34 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     sendMessage(chatId, update.message().chat().username() + ", " + GREETING_MSG);
                     break;
 
-                case "/menu":
+                case "/menu1":
                     logger.info("Bot start message was received: {}", message.text());
-                    sendMessage(chatId, LIST_MENU);
+                    sendMessage(chatId, LIST_MENU_DOG);
+                    break;
+                case "/menu2":
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, LIST_MENU_CAT);
                     break;
 
-                case "/info":
+                case "/info1":
                     logger.info("Bot start message was received: {}", message.text());
-                    sendMessage(chatId, INFO_TEXT);
+                    sendMessage(chatId, INFO_TEXT_DOG);
+                    break;
+                case "/info2":
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, INFO_TEXT_CAT);
                     break;
 
-                case "/how":
+                case "/how1":
                     logger.info("Bot start message was received: {}", message.text());
-                    sendMessage(chatId, HOW_TEXT);
+                    sendMessage(chatId, HOW_TEXT_DOG);
                     break;
+
+                case "/how2":
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, HOW_TEXT_CAT);
+                    break;
+
                 case "/report":
                     logger.info("Bot start message was received: {}", message.text());
                     sendMessage(chatId, "Информация редактируется");
@@ -118,6 +131,5 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     }
 
     //@Scheduled(cron = "0 0 * * *") //здесь должен быть метод для напоминания пользователю предоставить отчет
-
 
 }

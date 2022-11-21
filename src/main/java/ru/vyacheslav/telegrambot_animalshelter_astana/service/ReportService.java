@@ -60,14 +60,16 @@ public class ReportService {
     }
 
     public void createReportFromMessage(Message message) {
-        Report report = new Report();
         if (message.photo() == null) {
             throw new RuntimeException("No photo");
         }
-
         if (message.caption() == null) {
             throw new RuntimeException("No text");
         }
+        // TODO: 21.11.2022 Добавить приватный метод парсинга текста отчета по формату
+        Report report = new Report();
+        // TODO: 21.11.2022 Установить все поля к сущности report
+        // TODO: 21.11.2022 Сохранить отчет в базу
     }
 
 }

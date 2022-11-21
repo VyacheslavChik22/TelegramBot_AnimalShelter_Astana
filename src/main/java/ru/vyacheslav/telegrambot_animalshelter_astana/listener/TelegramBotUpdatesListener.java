@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.ReportRepository;
+import ru.vyacheslav.telegrambot_animalshelter_astana.service.PersonService;
 import ru.vyacheslav.telegrambot_animalshelter_astana.service.ReportService;
 
 import javax.annotation.PostConstruct;
@@ -27,15 +28,15 @@ import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramB
 public class TelegramBotUpdatesListener implements UpdatesListener {
 
     private final ReportService reportService;
+    private final PersonService personService;
 
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
 
     private final TelegramBot telegramBot;
 
-    private int reportMessageId;
-
-    public TelegramBotUpdatesListener(ReportService reportService, TelegramBot telegramBot) {
+    public TelegramBotUpdatesListener(ReportService reportService, PersonService personService, TelegramBot telegramBot) {
         this.reportService = reportService;
+        this.personService = personService;
         this.telegramBot = telegramBot;
     }
 
@@ -49,9 +50,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         updates.forEach(update -> {
             logger.info("Processing update: {}", update);
             Message message = update.message();
-            logger.info("Report messageId: {}", reportMessageId);
-            logger.info("Message Id{}", message.messageId());
-            logger.info("Forwarded from: {}", message.replyToMessage());
+
             // If the server connection was lost, then message object can be null
             // So we ignore it in this case
             if (message == null) {
@@ -60,7 +59,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
             Long chatId = message.chat().id();
 
-            if (message.replyToMessage() != null && message.replyToMessage().messageId() == reportMessageId) {
+            // Если пользователь отвечает на сообщение о подаче репорта
+            // можно проверять ключевое слово из сообщения бота (напрмер фото) вместо команды
+            if (message.replyToMessage() != null && message.replyToMessage().text().startsWith("/report")) {
                 try {
                     reportService.createReportFromMessage(message);
                     sendMessage(chatId, "Отчет сохранен");
@@ -72,8 +73,21 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 }
             }
 
+            // Если пользователь отвечает на сообщение о своих контактных данных
+            // можно проверять ключевое слово из сообщения бота (напрмер почта) вместо команды
+            if (message.replyToMessage() != null && message.replyToMessage().text().startsWith("/repeat")) {
+                try {
+                    personService.createPersonFromMessage(message.text());
+                    sendMessage(chatId, "Контактные данные сохранены");
+                    return;
+                } catch (RuntimeException e) {
+                    sendMessage(chatId, "Ошибка в отчете: " + e.getMessage());
+                    return;
+                }
+            }
+
             switch (message.text()) {
-                case "/start":
+                case START_CMD:
                     // Send GREETINGS_MSG if START_CMD was found
                     logger.info("Bot start message was received: {}", message.text());
                     sendMessage(chatId, update.message().chat().username() + ", " + GREETING_MSG);
@@ -95,8 +109,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     break;
                 case "/report":
                     logger.info("Bot start message was received: {}", message.text());
-                    SendResponse response = sendMessage(chatId, "/animal Информация редактируется");
-                    reportMessageId = response.message().messageId();
+                    sendMessage(chatId, "/report Сделайте реплай с отчетом и фото на это сообщение");
                     break;
 
                 case "/call":
@@ -106,7 +119,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
                 case "/repeat":
                     logger.info("Bot start message was received: {}", message.text());
-                    sendMessage(chatId, "Информация редактируется");
+                    sendMessage(chatId, "/repeat Сделайте реплай с телефоном на это сообщение");
                     break;
 
                 default:
@@ -125,7 +138,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * @param chatId     index of a telegram chat to which the message is sent
      * @param textToSend string to be sent
      */
-    private SendResponse sendMessage(Long chatId, String textToSend) {
+    private void sendMessage(Long chatId, String textToSend) {
         // Create message to send and send it to chat defined by id
         SendMessage sendMessage = new SendMessage(chatId, textToSend);
         SendResponse response = telegramBot.execute(sendMessage);
@@ -134,7 +147,6 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         if (!response.isOk()) {
             logger.warn("Message was not sent, error code: {}", response.errorCode());
         }
-        return response;
     }
 
     //@Scheduled(cron = "0 0 * * *") //здесь должен быть метод для напоминания пользователю предоставить отчет

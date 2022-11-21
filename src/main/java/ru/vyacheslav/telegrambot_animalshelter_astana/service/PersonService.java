@@ -1,5 +1,6 @@
 package ru.vyacheslav.telegrambot_animalshelter_astana.service;
 
+import com.pengrad.telegrambot.model.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -70,5 +71,19 @@ public class PersonService {
         logger.info("Was invoked method for delete person by id: {}", id);
         Person person = findPerson(id);
         personRepository.delete(person);
+    }
+
+    public void createPersonFromMessage(String messageText) {
+        // TODO: 21.11.2022 Парсим сообщение на соответствие шаблону (создать приватный метод парсинга)
+        // TODO: 21.11.2022 Создаем нового Person и устанавливаем нужные поля
+        // TODO: 21.11.2022 Сохраняем пользователя в базу
+        if (messageText.length() < 5) {
+            // TODO: 21.11.2022 Исключения перенести в метод парсинга сообщения
+            throw new RuntimeException("Телефон неверный");
+        }
+    }
+
+    private void parseText(String text) {
+
     }
 }

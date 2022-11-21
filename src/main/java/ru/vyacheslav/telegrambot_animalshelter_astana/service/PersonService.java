@@ -73,7 +73,7 @@ public class PersonService {
         personRepository.delete(person);
     }
 
-    public void createPersonFromMessage(String messageText) {
+    public void createPersonFromMessage(Long chatId, String messageText) {
         // TODO: 21.11.2022 Парсим сообщение на соответствие шаблону (создать приватный метод парсинга)
         // TODO: 21.11.2022 Создаем нового Person и устанавливаем нужные поля
         // TODO: 21.11.2022 Сохраняем пользователя в базу

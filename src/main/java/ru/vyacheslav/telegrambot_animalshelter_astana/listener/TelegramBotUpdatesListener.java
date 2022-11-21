@@ -77,7 +77,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             // можно проверять ключевое слово из сообщения бота (напрмер почта) вместо команды
             if (message.replyToMessage() != null && message.replyToMessage().text().startsWith("/repeat")) {
                 try {
-                    personService.createPersonFromMessage(message.text());
+                    personService.createPersonFromMessage(chatId, message.text());
                     sendMessage(chatId, "Контактные данные сохранены");
                     return;
                 } catch (RuntimeException e) {

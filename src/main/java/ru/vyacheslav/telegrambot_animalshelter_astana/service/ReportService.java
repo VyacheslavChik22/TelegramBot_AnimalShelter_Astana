@@ -1,5 +1,6 @@
 package ru.vyacheslav.telegrambot_animalshelter_astana.service;
 
+import com.pengrad.telegrambot.model.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -57,6 +58,18 @@ public class ReportService {
         logger.debug("Request method deleteById {}:", id);
         reportRepository.deleteById(id);
     }
+
+    public void createReportFromMessage(Message message) {
+        Report report = new Report();
+        if (message.photo() == null) {
+            throw new RuntimeException("No photo");
+        }
+
+        if (message.caption() == null) {
+            throw new RuntimeException("No text");
+        }
+    }
+
 }
 
 

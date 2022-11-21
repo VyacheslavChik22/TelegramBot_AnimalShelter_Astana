@@ -14,28 +14,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.ReportRepository;
+import ru.vyacheslav.telegrambot_animalshelter_astana.service.ReportService;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramBotConstants.*;
 
 @Service
 public class TelegramBotUpdatesListener implements UpdatesListener {
 
-    private final ReportRepository reportRepository;
+    private final ReportService reportService;
 
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
 
     private final TelegramBot telegramBot;
 
-    public TelegramBotUpdatesListener(ReportRepository reportRepository, TelegramBot telegramBot) {
-        this.reportRepository = reportRepository;
+    private int reportMessageId;
+
+    public TelegramBotUpdatesListener(ReportService reportService, TelegramBot telegramBot) {
+        this.reportService = reportService;
         this.telegramBot = telegramBot;
-
     }
-
 
     @PostConstruct
     public void init() {
@@ -47,6 +49,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         updates.forEach(update -> {
             logger.info("Processing update: {}", update);
             Message message = update.message();
+            logger.info("Report messageId: {}", reportMessageId);
+            logger.info("Message Id{}", message.messageId());
+            logger.info("Forwarded from: {}", message.replyToMessage());
             // If the server connection was lost, then message object can be null
             // So we ignore it in this case
             if (message == null) {
@@ -54,6 +59,19 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             }
 
             Long chatId = message.chat().id();
+
+            if (message.replyToMessage() != null && message.replyToMessage().messageId() == reportMessageId) {
+                try {
+                    reportService.createReportFromMessage(message);
+                    sendMessage(chatId, "Отчет сохранен");
+                    sendMessage(chatId, "/menu");
+                    return;
+                } catch (RuntimeException e) {
+                    sendMessage(chatId, "Ошибка в отчете: " + e.getMessage());
+                    return;
+                }
+            }
+
             switch (message.text()) {
                 case "/start":
                     // Send GREETINGS_MSG if START_CMD was found
@@ -77,7 +95,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     break;
                 case "/report":
                     logger.info("Bot start message was received: {}", message.text());
-                    sendMessage(chatId, "Информация редактируется");
+                    SendResponse response = sendMessage(chatId, "/animal Информация редактируется");
+                    reportMessageId = response.message().messageId();
                     break;
 
                 case "/call":
@@ -106,7 +125,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * @param chatId     index of a telegram chat to which the message is sent
      * @param textToSend string to be sent
      */
-    private void sendMessage(Long chatId, String textToSend) {
+    private SendResponse sendMessage(Long chatId, String textToSend) {
         // Create message to send and send it to chat defined by id
         SendMessage sendMessage = new SendMessage(chatId, textToSend);
         SendResponse response = telegramBot.execute(sendMessage);
@@ -115,6 +134,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         if (!response.isOk()) {
             logger.warn("Message was not sent, error code: {}", response.errorCode());
         }
+        return response;
     }
 
     //@Scheduled(cron = "0 0 * * *") //здесь должен быть метод для напоминания пользователю предоставить отчет

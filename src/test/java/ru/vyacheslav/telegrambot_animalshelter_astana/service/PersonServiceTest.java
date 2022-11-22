@@ -5,7 +5,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonAlreadyExistsException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
+import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextPatternDoesNotMatchException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Person;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.PersonRepository;
 
@@ -115,6 +117,26 @@ public class PersonServiceTest {
 
         assertThat(result).isEqualTo(testPerson);
         verify(personRepository, atLeastOnce()).save(testPerson);
+    }
+
+    @Test
+    void shouldThrowPersonAlreadyExistsException_whenCreateNewPersonFromContactData() {
+        when(personRepository.findPersonByChatId(anyLong())).thenReturn(getTestPerson(1L, "Test"));
+
+        assertThatThrownBy(() -> out.createPersonFromMessage(anyLong(), "anyString()")).isInstanceOf(PersonAlreadyExistsException.class);
+        verify(personRepository, never()).save(any(Person.class));
+    }
+
+    @Test
+    void shouldThrowTextPatternDoesNotMatchException_whenCreateNewPersonFromWrongMessage() {
+        String testMessage = "Имя: Test;\n" +
+                "Телефон: +79;\n" +
+                "Почта: test";
+
+        when(personRepository.findPersonByChatId(anyLong())).thenReturn(null);
+
+        assertThatThrownBy(() -> out.createPersonFromMessage(anyLong(), testMessage)).isInstanceOf(TextPatternDoesNotMatchException.class);
+        verify(personRepository, never()).save(any(Person.class));
     }
 
     public static Person getTestPerson(long id, String name) {

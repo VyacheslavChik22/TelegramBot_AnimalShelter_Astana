@@ -84,19 +84,21 @@ public class PersonService {
     }
 
     public Person createPersonFromMessage(Long chatId, String messageText) {
-        // проверку на существование пользователя можно перенести в Листенер для вариативности ответа бота
+        logger.info("Was invoked method to create person and set their contact data from the message");
+        // TODO: 22.11.2022 Проверку на существование пользователя можно перенести в Листенер для вариативности ответа бота
         if (personRepository.findPersonByChatId(chatId) != null) {
+            logger.info("Person with {} is already saved in DB", chatId);
             throw new PersonAlreadyExistsException();
         }
-        // TODO: 21.11.2022 Парсим сообщение на соответствие шаблону (создать приватный метод парсинга)
+        // Parse message text in accordance with the pattern
         List<String> contact_data = parseText(messageText);
-        // TODO: 21.11.2022 Создаем нового Person и устанавливаем нужные поля
+        // Create new person entity and set necessary values
         Person person = new Person();
         person.setName(contact_data.get(0));
         person.setPhone(contact_data.get(1));
         person.setEmail(contact_data.get(2));
         person.setChatId(chatId);
-        // TODO: 21.11.2022 Сохраняем пользователя в базу
+        // Save new person with contact details to DB
         createPerson(person);
         return person;
     }
@@ -110,6 +112,7 @@ public class PersonService {
             String email = matcher.group(9);
             return List.of(name, phone, email);
         } else {
+            logger.info("User input doesn't match the pattern: {}", text);
             throw new TextPatternDoesNotMatchException();
         }
     }

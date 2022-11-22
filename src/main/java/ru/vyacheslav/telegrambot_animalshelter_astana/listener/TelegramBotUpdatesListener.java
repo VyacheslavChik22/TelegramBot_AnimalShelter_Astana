@@ -82,6 +82,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 try {
                     personService.createPersonFromMessage(chatId, message.text());
                     sendMessage(chatId, "Контактные данные сохранены");
+                    sendMessage(chatId, "/menu");
                     return;
                 } catch (PersonAlreadyExistsException e) {
                     sendMessage(chatId, "Ваши контактные данные уже сохранены");
@@ -113,7 +114,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     sendMessage(chatId, HOW_TEXT);
                     break;
                 case "/report":
-                    logger.info("Bot start message was received: {}", message.text());
+                    logger.info("Bot report message was received: {}", message.text());
                     sendMessage(chatId, "/report Сделайте реплай с отчетом и фото на это сообщение");
                     break;
 

@@ -4,12 +4,21 @@ import com.pengrad.telegrambot.model.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramBotConstants;
+import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonAlreadyExistsException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
+import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextPatternDoesNotMatchException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Person;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.PersonRepository;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramBotConstants.*;
 
 /**
  * @author Oleg Alekseenko
@@ -17,6 +26,7 @@ import java.util.Collections;
 @Service
 public class PersonService {
     private final Logger logger = LoggerFactory.getLogger(PersonService.class);
+    private final Pattern pattern = Pattern.compile(CONTACT_DATA_PATTERN);
 
     private final PersonRepository personRepository;
 
@@ -73,17 +83,34 @@ public class PersonService {
         personRepository.delete(person);
     }
 
-    public void createPersonFromMessage(Long chatId, String messageText) {
-        // TODO: 21.11.2022 Парсим сообщение на соответствие шаблону (создать приватный метод парсинга)
-        // TODO: 21.11.2022 Создаем нового Person и устанавливаем нужные поля
-        // TODO: 21.11.2022 Сохраняем пользователя в базу
-        if (messageText.length() < 5) {
-            // TODO: 21.11.2022 Исключения перенести в метод парсинга сообщения
-            throw new RuntimeException("Телефон неверный");
+    public Person createPersonFromMessage(Long chatId, String messageText) {
+        // проверку на существование пользователя можно перенести в Листенер для вариативности ответа бота
+        if (personRepository.findPersonByChatId(chatId) != null) {
+            throw new PersonAlreadyExistsException();
         }
+        // TODO: 21.11.2022 Парсим сообщение на соответствие шаблону (создать приватный метод парсинга)
+        List<String> contact_data = parseText(messageText);
+        // TODO: 21.11.2022 Создаем нового Person и устанавливаем нужные поля
+        Person person = new Person();
+        person.setName(contact_data.get(0));
+        person.setPhone(contact_data.get(1));
+        person.setEmail(contact_data.get(2));
+        person.setChatId(chatId);
+        // TODO: 21.11.2022 Сохраняем пользователя в базу
+        createPerson(person);
+        return person;
     }
 
-    private void parseText(String text) {
-
+    private List<String> parseText(String text) {
+        Matcher matcher = pattern.matcher(text);
+        if (matcher.matches()) {
+            logger.info("Text matches the pattern.");
+            String name = matcher.group(3);
+            String phone = matcher.group(6);
+            String email = matcher.group(9);
+            return List.of(name, phone, email);
+        } else {
+            throw new TextPatternDoesNotMatchException();
+        }
     }
 }

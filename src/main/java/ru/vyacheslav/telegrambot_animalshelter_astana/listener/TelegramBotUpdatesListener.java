@@ -13,6 +13,9 @@ import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramBotConstants;
+import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonAlreadyExistsException;
+import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextPatternDoesNotMatchException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.ReportRepository;
 import ru.vyacheslav.telegrambot_animalshelter_astana.service.PersonService;
 import ru.vyacheslav.telegrambot_animalshelter_astana.service.ReportService;
@@ -80,9 +83,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     personService.createPersonFromMessage(chatId, message.text());
                     sendMessage(chatId, "Контактные данные сохранены");
                     return;
-                } catch (RuntimeException e) {
-                    sendMessage(chatId, "Ошибка в отчете: " + e.getMessage());
+                } catch (PersonAlreadyExistsException e) {
+                    sendMessage(chatId, "Ваши контактные данные уже сохранены");
                     return;
+                } catch (TextPatternDoesNotMatchException e) {
+                    sendMessage(chatId, "Текст не соответствует шаблону, нажмите /repeat и попробуйте еще раз");
                 }
             }
 
@@ -119,7 +124,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
                 case "/repeat":
                     logger.info("Bot start message was received: {}", message.text());
-                    sendMessage(chatId, "/repeat Сделайте реплай с телефоном на это сообщение");
+                    sendMessage(chatId, "/repeat Сделайте реплай с телефоном на это сообщение в формате " + CONTACT_DATA_PATTERN);
                     break;
 
                 default:

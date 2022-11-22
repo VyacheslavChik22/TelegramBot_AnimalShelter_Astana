@@ -9,4 +9,5 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.model.Person;
  */
 @Repository
 public interface PersonRepository extends JpaRepository<Person, Long> {
+    Person findPersonByChatId(Long chatId);
 }

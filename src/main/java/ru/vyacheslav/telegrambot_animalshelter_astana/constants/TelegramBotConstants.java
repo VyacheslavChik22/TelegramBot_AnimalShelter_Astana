@@ -44,4 +44,6 @@ public class TelegramBotConstants {
 
     public static final String DEFAULT_TEXT = "Извините, но такой команды у нашего бота нет!\n/menu";
 
+    public static String CONTACT_DATA_PATTERN = "(Имя:)(\\s)(\\w+);\n(Телефон:)(\\s)\\+([0-9]{11});\n(Почта:)(\\s)([\\w\\-\\.]+@([\\w-]+\\.)+[\\w-]{2,4})";
+
 }

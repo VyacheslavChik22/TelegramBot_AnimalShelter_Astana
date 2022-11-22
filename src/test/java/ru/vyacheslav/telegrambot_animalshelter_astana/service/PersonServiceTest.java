@@ -96,6 +96,27 @@ public class PersonServiceTest {
         assertThatThrownBy(() -> out.deletePerson(anyLong())).isInstanceOf(PersonNotFoundException.class);
     }
 
+    @Test
+    void shouldCreateNewPerson_whenContactDataReceived() {
+        Person testPerson = new Person();
+        testPerson.setName("Test");
+        testPerson.setPhone("79031234567");
+        testPerson.setEmail("test@gmail.com");
+        testPerson.setChatId(1L);
+
+        String testMessage = "Имя: Test;\n" +
+                "Телефон: +79031234567;\n" +
+                "Почта: test@gmail.com";
+
+        when(personRepository.findPersonByChatId(anyLong())).thenReturn(null);
+        when(personRepository.save(any(Person.class))).thenReturn(testPerson);
+
+        Person result = out.createPersonFromMessage(1L, testMessage);
+
+        assertThat(result).isEqualTo(testPerson);
+        verify(personRepository, atLeastOnce()).save(testPerson);
+    }
+
     public static Person getTestPerson(long id, String name) {
         Person testPerson = new Person();
         testPerson.setId(id);

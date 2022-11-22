@@ -1,13 +1,20 @@
 package ru.vyacheslav.telegrambot_animalshelter_astana.service;
+import com.pengrad.telegrambot.model.Message;
+import com.pengrad.telegrambot.model.PhotoSize;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.ReportNotFoundException;
+import ru.vyacheslav.telegrambot_animalshelter_astana.model.Animal;
+import ru.vyacheslav.telegrambot_animalshelter_astana.model.Person;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Report;
+import ru.vyacheslav.telegrambot_animalshelter_astana.repository.PersonRepository;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.ReportRepository;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +29,8 @@ public class ReportServiceTest {
 
     @Mock
     ReportRepository reportRepository;
+    @Mock
+    PersonRepository personRepository;
 
     @InjectMocks
     private ReportService out;
@@ -73,6 +82,43 @@ public class ReportServiceTest {
 
         assertThat(result).isEqualTo(testReport);
         assertThat(result.getId()).isEqualTo(testReport.getId());
+    }
+
+    @Test
+    void shouldThrowPersonNotFoundException_whenCreateNewReportForUserNotInDB() {
+        when(personRepository.findPersonByChatId(anyLong())).thenReturn(null);
+
+        assertThatThrownBy(() -> out.createReportFromMessage(anyLong(), null, null)).isInstanceOf(PersonNotFoundException.class);
+        verify(personRepository, never()).save(any(Person.class));
+        verify(reportRepository, never()).save(any(Report.class));
+    }
+
+    @Test
+    void shouldThrowException_whenCreateReportWithoutPhotoOrCaption() {
+        Person testPerson = new Person();
+        testPerson.setId(1L);
+        testPerson.setChatId(1L);
+
+        when(personRepository.findPersonByChatId(anyLong())).thenReturn(testPerson);
+
+        assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), null, "null"))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("No photo");
+        assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), new PhotoSize[]{}, null))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("No text");
+        assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), new PhotoSize[]{}, "null"))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("No animal");
+
+        testPerson.setAnimal(new Animal(1L, "Test cat"));
+        testPerson.setLastReportDate(LocalDate.now());
+        assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), new PhotoSize[]{}, "null"))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("Report has sent");
+
+        verify(personRepository, never()).save(any(Person.class));
+        verify(reportRepository, never()).save(any(Report.class));
     }
 
 

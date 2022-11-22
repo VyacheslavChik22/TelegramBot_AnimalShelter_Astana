@@ -66,7 +66,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             // можно проверять ключевое слово из сообщения бота (напрмер фото) вместо команды
             if (message.replyToMessage() != null && message.replyToMessage().text().startsWith("/report")) {
                 try {
-                    reportService.createReportFromMessage(message);
+                    reportService.createReportFromMessage(chatId, message.photo(), message.caption());
                     sendMessage(chatId, "Отчет сохранен");
                     sendMessage(chatId, "/menu");
                     return;

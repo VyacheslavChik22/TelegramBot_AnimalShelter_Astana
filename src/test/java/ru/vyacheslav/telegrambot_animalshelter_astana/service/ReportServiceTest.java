@@ -16,10 +16,7 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.repository.PersonRepositor
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.ReportRepository;
 
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -128,6 +125,39 @@ public class ReportServiceTest {
         verify(reportRepository, never()).save(any(Report.class));
     }
 
+    @Test
+    void shouldCreateNewReportFromMessage() {
+        Person testPerson = new Person();
+        testPerson.setId(1L);
+        testPerson.setChatId(1L);
+        testPerson.setAnimal(new Animal(1L, "Test cat"));
+
+        String caption = "text";
+
+        Map<String, Object> fileFields = new HashMap<>();
+        fileFields.put("mediaType", "type");
+        fileFields.put("photoData", new byte[1]);
+        fileFields.put("photoSize", 1);
+        fileFields.put("photoPath", "path");
+
+        Report testReport = addTestReport(1L, caption);
+        testReport.setReportDate(LocalDate.now());
+        testReport.setPhotoPath((String) fileFields.get("photoPath"));
+        testReport.setPhotoSize((Integer) fileFields.get("photoSize"));
+        testReport.setPhotoData((byte[]) fileFields.get("photoData"));
+        testReport.setMediaType((String) fileFields.get("mediaType"));
+        testReport.setPerson(testPerson);
+
+        when(personRepository.findPersonByChatId(anyLong())).thenReturn(Optional.of(testPerson));
+        when(reportRepository.save(any(Report.class))).thenReturn(testReport);
+
+        Report result = out.createReportFromMessage(testPerson.getChatId(), fileFields, caption);
+
+        assertThat(result).isNotNull()
+                .isInstanceOf(Report.class)
+                .isEqualTo(testReport);
+
+    }
 
     public static Report addTestReport(long id, String description) {
         Report testReport = new Report();

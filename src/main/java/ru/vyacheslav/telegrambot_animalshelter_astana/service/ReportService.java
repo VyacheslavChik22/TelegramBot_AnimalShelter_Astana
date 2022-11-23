@@ -69,6 +69,17 @@ public class ReportService {
         reportRepository.deleteById(id);
     }
 
+    /**
+     * Creates report entity with text and photo file data, and saves it in DB
+     *
+     * @param chatId chat identification number from the telegram {@link com.pengrad.telegrambot.model.Message} object
+     * @param fileMap map which contains key-value pairs with photo file data
+     * @param caption text from the telegram message with photo file
+     * @return report entity
+     * @throws PersonNotFoundException when there is no person with such chatId in DB
+     * @throws NoAnimalAdoptedException if person doesn't have adopted animal
+     * @throws RuntimeException with specific message when person has already sent report today
+     */
     public Report createReportFromMessage(Long chatId, Map<String, Object> fileMap, String caption) {
         logger.info("Request method createReportFromMessage");
         // TODO: 22.11.2022 Инжектить personService вместо PersonRepository???
@@ -76,7 +87,7 @@ public class ReportService {
         Person person = personRepository.findPersonByChatId(chatId).orElseThrow(PersonNotFoundException::new);
 
         // TODO: 22.11.2022 Добавить кастомные эксешены для photo, caption & report
-        // Проверить что у пользователя есть животное (person.getAnimal() != null) - бросить ошибку
+        // Проверить что у пользователя есть животное
         if (person.getAnimal() == null) {
             throw new NoAnimalAdoptedException();
         }

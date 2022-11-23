@@ -1,14 +1,10 @@
 package ru.vyacheslav.telegrambot_animalshelter_astana.listener;
 
 import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.TelegramException;
 import com.pengrad.telegrambot.UpdatesListener;
-import com.pengrad.telegrambot.model.BotCommand;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.model.botcommandscope.BotCommandScopeDefault;
 import com.pengrad.telegrambot.request.SendMessage;
-import com.pengrad.telegrambot.request.SetMyCommands;
 import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +12,6 @@ import org.springframework.stereotype.Service;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.ReportRepository;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
 import java.util.List;
 
 import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramBotConstants.*;
@@ -49,35 +44,48 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             Message message = update.message();
             // If the server connection was lost, then message object can be null
             // So we ignore it in this case
-            if (message == null) {
+            if (message == null || message.text() == null) {
                 return;
             }
 
             Long chatId = message.chat().id();
             switch (message.text()) {
                 case "/start":
-                    // Send GREETINGS_MSG if START_CMD was found
                     logger.info("Bot start message was received: {}", message.text());
                     sendMessage(chatId, update.message().chat().username() + ", " + GREETING_MSG);
                     break;
 
-                case "/menu":
+                case "/menu_Dog":
                     logger.info("Bot start message was received: {}", message.text());
-                    sendMessage(chatId, LIST_MENU);
+                    sendMessage(chatId, LIST_MENU_DOG);
+                    break;
+                case "/menu_Cat":
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, LIST_MENU_CAT);
                     break;
 
-                case "/info":
+                case "/info_shelterDog":
                     logger.info("Bot start message was received: {}", message.text());
-                    sendMessage(chatId, INFO_TEXT);
+                    sendMessage(chatId, INFO_TEXT_DOG);
+                    break;
+                case "/info_shelterCat":
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, INFO_TEXT_CAT);
                     break;
 
-                case "/how":
+                case "/how_to_adopt_a_Dog":
                     logger.info("Bot start message was received: {}", message.text());
-                    sendMessage(chatId, HOW_TEXT);
+                    sendMessage(chatId, HOW_TEXT_DOG);
                     break;
+
+                case "/how_to_adopt_a_Cat":
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, HOW_TEXT_CAT);
+                    break;
+
                 case "/report":
                     logger.info("Bot start message was received: {}", message.text());
-                    sendMessage(chatId, "Информация редактируется");
+                    sendMessage(chatId, REPORT_FORM);
                     break;
 
                 case "/call":
@@ -85,15 +93,118 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     sendMessage(chatId, CALL_TEXT);
                     break;
 
-                case "/repeat":
+                case "/contact":
                     logger.info("Bot start message was received: {}", message.text());
-                    sendMessage(chatId, "Информация редактируется");
+                    sendMessage(chatId, CONTACT_TEXT);
+                    break;
+
+
+                //*********************--menu2--******************
+                case "/consultation_Dog":
+                    // Send GREETINGS_MSG if START_CMD was found
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, update.message().chat().username() + ", " + LIST_MENU_CONSULTATION_DOG);
+                    break;
+
+                case "/consultation_Cat":
+                    // Send GREETINGS_MSG if START_CMD was found
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, update.message().chat().username() + ", " + LIST_MENU_CONSULTATION_CAT);
+                    break;
+
+                case "/documents_Dog":
+                    // Send GREETINGS_MSG if START_CMD was found
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, DOCUMENTS_TEXT_DOG);
+                    break;
+
+                case "/documents_Cat":
+                    // Send GREETINGS_MSG if START_CMD was found
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, DOCUMENTS_TEXT_CAT);
+                    break;
+
+                case "/transportation_Dog":
+                    // Send GREETINGS_MSG if START_CMD was found
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, TRANSPORTATION_TEXT_DOG);
+                    break;
+
+                case "/transportation_Cat":
+                    // Send GREETINGS_MSG if START_CMD was found
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, TRANSPORTATION_TEXT_CAT);
+                    break;
+
+                case "/acquaintance_Dog":
+                    // Send GREETINGS_MSG if START_CMD was found
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, ACQUAINTANCE_TEXT_DOG);
+                    break;
+
+                case "/acquaintance_Cat":
+                    // Send GREETINGS_MSG if START_CMD was found
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, ACQUAINTANCE_TEXT_CAT);
+                    break;
+
+                case "/advice_little_Dog":
+                    // Send GREETINGS_MSG if START_CMD was found
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, ADVICE_LITTLE_TEXT_DOG);
+                    break;
+
+                case "/advice_little_Cat":
+                    // Send GREETINGS_MSG if START_CMD was found
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, ADVICE_LITTLE_TEXT_CAT);
+                    break;
+
+                case "/advice_big_Dog":
+                    // Send GREETINGS_MSG if START_CMD was found
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, ADVICE_BIG_TEXT_DOG);
+                    break;
+
+                case "/advice_big_Cat":
+                    // Send GREETINGS_MSG if START_CMD was found
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, ADVICE_BIG_TEXT_CAT);
+                    break;
+
+                case "/advice_limited_Dog":
+                    // Send GREETINGS_MSG if START_CMD was found
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, ADVICE_LIMITED_TEXT_DOG);
+                    break;
+
+                case "/advice_limited_Cat":
+                    // Send GREETINGS_MSG if START_CMD was found
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, ADVICE_LIMITED_TEXT_CAT);
+                    break;
+
+                case "/rejection_reasons":
+                    // Send GREETINGS_MSG if START_CMD was found
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, REJECTION_REASONS);
+                    break;
+
+                case "/advices_cynologist":
+                    // Send GREETINGS_MSG if START_CMD was found
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, ADVICES_CYNOLOGIST);
+                    break;
+
+                case "/tested_cynologists":
+                    // Send GREETINGS_MSG if START_CMD was found
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, TESTED_CYNOLOGIST);
                     break;
 
                 default:
                     sendMessage(chatId, DEFAULT_TEXT);
             }
-
 
         });
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
@@ -118,6 +229,5 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     }
 
     //@Scheduled(cron = "0 0 * * *") //здесь должен быть метод для напоминания пользователю предоставить отчет
-
 
 }

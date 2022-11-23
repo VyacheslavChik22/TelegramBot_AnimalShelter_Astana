@@ -2,25 +2,29 @@ package ru.vyacheslav.telegrambot_animalshelter_astana.listener;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
+import com.pengrad.telegrambot.model.File;
 import com.pengrad.telegrambot.model.Message;
+import com.pengrad.telegrambot.model.PhotoSize;
 import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.request.GetFile;
 import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.response.GetFileResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
-import ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramBotConstants;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonAlreadyExistsException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextPatternDoesNotMatchException;
-import ru.vyacheslav.telegrambot_animalshelter_astana.repository.ReportRepository;
 import ru.vyacheslav.telegrambot_animalshelter_astana.service.PersonService;
 import ru.vyacheslav.telegrambot_animalshelter_astana.service.ReportService;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramBotConstants.*;
@@ -64,11 +68,16 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             // можно проверять ключевое слово из сообщения бота (напрмер фото) вместо команды
             if (message.replyToMessage() != null && message.replyToMessage().text().equals(REPORT_FORM)) {
                 try {
-                    reportService.createReportFromMessage(chatId, message.photo(), message.caption());
-//                    logger.info("PhotoSize object: {}", Arrays.stream(message.photo()).collect(Collectors.toList()));
+                    checkIfReportMessageEligible(message.photo(), message.caption());
+
+                    Map<String, Object> fileMap = extractPhotoData(message.photo());
+                    reportService.createReportFromMessage(chatId, fileMap, message.caption());
+
                     sendMessage(chatId, "Отчет сохранен");
                     sendMessage(chatId, "/start");
                     return;
+                } catch (IOException e) {
+                    throw new RuntimeException("Проблема с сохранением фото");
                 } catch (RuntimeException e) {
                     sendMessage(chatId, "Ошибка в отчете: " + e.getMessage());
                     return;
@@ -247,6 +256,34 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         if (!response.isOk()) {
             logger.warn("Message was not sent, error code: {}", response.errorCode());
         }
+    }
+
+    private void checkIfReportMessageEligible(PhotoSize[] photoSizes, String caption) {
+        if (photoSizes == null) {
+            throw new RuntimeException("No photo");
+        }
+        if (caption == null) {
+            throw new RuntimeException("No text");
+        }
+    }
+
+    private Map<String, Object> extractPhotoData(PhotoSize[] photoSizes) throws IOException {
+
+        PhotoSize photoObject = photoSizes[1];
+
+        GetFile fileRequest = new GetFile(photoObject.fileId());
+        GetFileResponse fileResponse = telegramBot.execute(fileRequest);
+        File file = fileResponse.file();
+        byte[] fileData = telegramBot.getFileContent(file);
+
+        // Form map to transfer to ReportService.createReportFromMessage method
+        HashMap<String, Object> fileFields = new HashMap<>();
+        fileFields.put("mediaType", fileRequest.getContentType());
+        fileFields.put("photoData", fileData);
+        fileFields.put("photoSize", file.fileSize());
+        fileFields.put("photoPath", file.filePath());
+
+        return fileFields;
     }
 
     //@Scheduled(cron = "0 0 * * *") //здесь должен быть метод для напоминания пользователю предоставить отчет

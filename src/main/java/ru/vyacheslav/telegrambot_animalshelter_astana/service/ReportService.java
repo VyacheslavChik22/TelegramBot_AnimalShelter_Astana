@@ -68,6 +68,7 @@ public class ReportService {
     }
 
     public Report createReportFromMessage(Long chatId, PhotoSize[] photo, String caption) {
+        logger.info("Request method createReportFromMessage");
         // TODO: 22.11.2022 Инжектить personService вместо PersonRepository???
         // Проверить существует ли пользователь в нашей БД по chatId - если нет, то бросить ошибку
         Person person = personRepository.findPersonByChatId(chatId);

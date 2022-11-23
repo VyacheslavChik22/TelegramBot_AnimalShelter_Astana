@@ -104,11 +104,13 @@ public class PersonServiceTest {
         testPerson.setName("Test");
         testPerson.setPhone("79031234567");
         testPerson.setEmail("test@gmail.com");
+        testPerson.setAddress("City");
         testPerson.setChatId(1L);
 
         String testMessage = "Имя: Test;\n" +
                 "Телефон: +79031234567;\n" +
-                "Почта: test@gmail.com";
+                "Почта: test@gmail.com;\n" +
+                "Адрес: City";
 
         when(personRepository.findPersonByChatId(anyLong())).thenReturn(null);
         when(personRepository.save(any(Person.class))).thenReturn(testPerson);

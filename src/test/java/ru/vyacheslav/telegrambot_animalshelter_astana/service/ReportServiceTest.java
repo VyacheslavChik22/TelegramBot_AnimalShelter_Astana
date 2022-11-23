@@ -101,17 +101,19 @@ public class ReportServiceTest {
 
         when(personRepository.findPersonByChatId(anyLong())).thenReturn(testPerson);
 
+        assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), new PhotoSize[]{}, "null"))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("No animal");
+
+        testPerson.setAnimal(new Animal(1L, "Test cat"));
+
         assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), null, "null"))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("No photo");
         assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), new PhotoSize[]{}, null))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("No text");
-        assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), new PhotoSize[]{}, "null"))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("No animal");
 
-        testPerson.setAnimal(new Animal(1L, "Test cat"));
         testPerson.setLastReportDate(LocalDate.now());
         assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), new PhotoSize[]{}, "null"))
                 .isInstanceOf(RuntimeException.class)

@@ -54,7 +54,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
             // If the server connection was lost, then message object can be null
             // So we ignore it in this case
-            if (message == null || message.text()==null) {
+            if (message == null || message.text()==null && message.replyToMessage() == null) {
                 return;
             }
 
@@ -62,12 +62,12 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
             // Если пользователь отвечает на сообщение о подаче репорта
             // можно проверять ключевое слово из сообщения бота (напрмер фото) вместо команды
-            if (message.replyToMessage() != null && message.replyToMessage().text().startsWith("/report")) {
+            if (message.replyToMessage() != null && message.replyToMessage().text().equals(REPORT_FORM)) {
                 try {
                     reportService.createReportFromMessage(chatId, message.photo(), message.caption());
-                    logger.info("PhotoSize object: {}", Arrays.stream(message.photo()).collect(Collectors.toList()));
+//                    logger.info("PhotoSize object: {}", Arrays.stream(message.photo()).collect(Collectors.toList()));
                     sendMessage(chatId, "Отчет сохранен");
-                    sendMessage(chatId, "/menu");
+                    sendMessage(chatId, "/start");
                     return;
                 } catch (RuntimeException e) {
                     sendMessage(chatId, "Ошибка в отчете: " + e.getMessage());
@@ -77,11 +77,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
             // Если пользователь отвечает на сообщение о своих контактных данных
             // можно проверять ключевое слово из сообщения бота (напрмер почта) вместо команды
-            if (message.replyToMessage() != null && message.replyToMessage().text().startsWith("/repeat")) {
+            if (message.replyToMessage() != null && message.replyToMessage().text().equals(CONTACT_TEXT)) {
                 try {
                     personService.createPersonFromMessage(chatId, message.text());
                     sendMessage(chatId, "Контактные данные сохранены");
-                    sendMessage(chatId, "/menu");
+                    sendMessage(chatId, "/start");
                     return;
                 } catch (PersonAlreadyExistsException e) {
                     sendMessage(chatId, "Ваши контактные данные уже сохранены");

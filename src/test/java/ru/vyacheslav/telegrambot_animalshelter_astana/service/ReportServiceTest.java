@@ -16,6 +16,7 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.repository.ReportRepositor
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -94,28 +95,39 @@ public class ReportServiceTest {
     }
 
     @Test
-    void shouldThrowException_whenCreateReportWithoutPhotoOrCaption() {
+    void shouldThrowException_whenCreateReportWithoutAnimal() {
         Person testPerson = new Person();
         testPerson.setId(1L);
         testPerson.setChatId(1L);
 
         when(personRepository.findPersonByChatId(anyLong())).thenReturn(testPerson);
 
-        assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), new PhotoSize[]{}, "null"))
+        assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), new HashMap<>(), "null"))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("No animal");
 
         testPerson.setAnimal(new Animal(1L, "Test cat"));
 
-        assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), null, "null"))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("No photo");
-        assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), new PhotoSize[]{}, null))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("No text");
-
         testPerson.setLastReportDate(LocalDate.now());
-        assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), new PhotoSize[]{}, "null"))
+        assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), new HashMap<>(), "null"))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("Report has sent");
+
+        verify(personRepository, never()).save(any(Person.class));
+        verify(reportRepository, never()).save(any(Report.class));
+    }
+
+    @Test
+    void shouldThrowException_whenCreateReportWithTheSameDate() {
+        Person testPerson = new Person();
+        testPerson.setId(1L);
+        testPerson.setChatId(1L);
+        testPerson.setAnimal(new Animal(1L, "Test cat"));
+        testPerson.setLastReportDate(LocalDate.now());
+
+        when(personRepository.findPersonByChatId(anyLong())).thenReturn(testPerson);
+
+        assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), new HashMap<>(), "null"))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("Report has sent");
 

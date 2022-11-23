@@ -1,5 +1,8 @@
 package ru.vyacheslav.telegrambot_animalshelter_astana.model;
 
+import org.hibernate.annotations.Type;
+import org.hibernate.type.BinaryType;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -18,6 +21,7 @@ public class Report {
     private Integer photoSize;
     private String mediaType;
     @Lob
+    @Type(type = "org.hibernate.type.BinaryType")
     private byte[] photoData;
     private String description;
     private LocalDate reportDate;

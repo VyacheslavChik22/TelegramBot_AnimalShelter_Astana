@@ -97,6 +97,7 @@ public class PersonService {
         person.setName(contact_data.get(0));
         person.setPhone(contact_data.get(1));
         person.setEmail(contact_data.get(2));
+        person.setAddress(contact_data.get(3));
         person.setChatId(chatId);
         // Save new person with contact details to DB
         createPerson(person);
@@ -110,7 +111,8 @@ public class PersonService {
             String name = matcher.group(3);
             String phone = matcher.group(6);
             String email = matcher.group(9);
-            return List.of(name, phone, email);
+            String address = matcher.group(13);
+            return List.of(name, phone, email, address);
         } else {
             logger.info("User input doesn't match the pattern: {}", text);
             throw new TextPatternDoesNotMatchException();

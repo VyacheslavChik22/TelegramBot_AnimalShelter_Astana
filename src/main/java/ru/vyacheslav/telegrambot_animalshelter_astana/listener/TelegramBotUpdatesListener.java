@@ -22,8 +22,10 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.service.ReportService;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramBotConstants.*;
 
@@ -67,6 +69,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             if (message.replyToMessage() != null && message.replyToMessage().text().startsWith("/report")) {
                 try {
                     reportService.createReportFromMessage(chatId, message.photo(), message.caption());
+                    logger.info("PhotoSize object: {}", Arrays.stream(message.photo()).collect(Collectors.toList()));
                     sendMessage(chatId, "Отчет сохранен");
                     sendMessage(chatId, "/menu");
                     return;

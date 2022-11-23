@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.NoAnimalAdoptedException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonAlreadyExistsException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextPatternDoesNotMatchException;
@@ -109,10 +110,10 @@ public class PersonServiceTest {
 
         String testMessage = "Имя: Test;\n" +
                 "Телефон: +79031234567;\n" +
-                "Почта: test@gmail.com;\n" +
+                "Email: test@gmail.com;\n" +
                 "Адрес: City";
 
-        when(personRepository.findPersonByChatId(anyLong())).thenReturn(null);
+        when(personRepository.findPersonByChatId(anyLong())).thenReturn(Optional.empty());
         when(personRepository.save(any(Person.class))).thenReturn(testPerson);
 
         Person result = out.createPersonFromMessage(1L, testMessage);
@@ -123,7 +124,7 @@ public class PersonServiceTest {
 
     @Test
     void shouldThrowPersonAlreadyExistsException_whenCreateNewPersonFromContactData() {
-        when(personRepository.findPersonByChatId(anyLong())).thenReturn(getTestPerson(1L, "Test"));
+        when(personRepository.findPersonByChatId(anyLong())).thenReturn(Optional.of(getTestPerson(1L, "Test")));
 
         assertThatThrownBy(() -> out.createPersonFromMessage(anyLong(), "anyString()")).isInstanceOf(PersonAlreadyExistsException.class);
         verify(personRepository, never()).save(any(Person.class));
@@ -135,10 +136,19 @@ public class PersonServiceTest {
                 "Телефон: +79;\n" +
                 "Почта: test";
 
-        when(personRepository.findPersonByChatId(anyLong())).thenReturn(null);
+        when(personRepository.findPersonByChatId(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> out.createPersonFromMessage(anyLong(), testMessage)).isInstanceOf(TextPatternDoesNotMatchException.class);
         verify(personRepository, never()).save(any(Person.class));
+    }
+
+    @Test
+    void shouldThrowNoAnimalException_whenCountDaysFromAdoptionForPersonWithoutAnimal() {
+        Person testPerson = getTestPerson(1L, "Test");
+
+        when(personRepository.findPersonByChatId(anyLong())).thenReturn(Optional.of(testPerson));
+
+        assertThatThrownBy(() -> out.countDaysFromAdoption(anyLong())).isInstanceOf(NoAnimalAdoptedException.class);
     }
 
     public static Person getTestPerson(long id, String name) {

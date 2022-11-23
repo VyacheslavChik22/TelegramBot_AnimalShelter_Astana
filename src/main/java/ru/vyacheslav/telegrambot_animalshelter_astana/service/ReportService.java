@@ -5,6 +5,7 @@ import com.pengrad.telegrambot.request.GetFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.NoAnimalAdoptedException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.ReportNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Person;
@@ -72,21 +73,17 @@ public class ReportService {
         logger.info("Request method createReportFromMessage");
         // TODO: 22.11.2022 Инжектить personService вместо PersonRepository???
         // Проверить существует ли пользователь в нашей БД по chatId - если нет, то бросить ошибку
-        Person person = personRepository.findPersonByChatId(chatId);
-        if (person == null) {
-            logger.info("User with {} not found in DB", chatId);
-            throw new PersonNotFoundException();
-        }
-        // TODO: 22.11.2022 Добавить кастомные эксешены для photo, caption, animal & report
+        Person person = personRepository.findPersonByChatId(chatId).orElseThrow(PersonNotFoundException::new);
+
+        // TODO: 22.11.2022 Добавить кастомные эксешены для photo, caption & report
         // Проверить что у пользователя есть животное (person.getAnimal() != null) - бросить ошибку
         if (person.getAnimal() == null) {
-            throw new RuntimeException("No animal");
+            throw new NoAnimalAdoptedException();
         }
         // Проверить дату последнего отчета у пользователя, если сегодня - бросить ошибку
         if (person.getLastReportDate() != null && person.getLastReportDate().isEqual(LocalDate.now())) {
             throw new RuntimeException("Report has sent");
         }
-        // TODO: 22.11.2022 Проверка что 30 дней с момента взятия животного еще не прошло (animalAdoptDate + 30 дней)
 
         // TODO: 21.11.2022 Добавить приватный метод парсинга текста отчета по формату
 

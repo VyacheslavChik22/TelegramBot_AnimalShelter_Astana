@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.NoAnimalAdoptedException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.ReportNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Animal;
@@ -87,7 +88,7 @@ public class ReportServiceTest {
 
     @Test
     void shouldThrowPersonNotFoundException_whenCreateNewReportForUserNotInDB() {
-        when(personRepository.findPersonByChatId(anyLong())).thenReturn(null);
+        when(personRepository.findPersonByChatId(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> out.createReportFromMessage(anyLong(), null, null)).isInstanceOf(PersonNotFoundException.class);
         verify(personRepository, never()).save(any(Person.class));
@@ -100,18 +101,10 @@ public class ReportServiceTest {
         testPerson.setId(1L);
         testPerson.setChatId(1L);
 
-        when(personRepository.findPersonByChatId(anyLong())).thenReturn(testPerson);
+        when(personRepository.findPersonByChatId(anyLong())).thenReturn(Optional.of(testPerson));
 
         assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), new HashMap<>(), "null"))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("No animal");
-
-        testPerson.setAnimal(new Animal(1L, "Test cat"));
-
-        testPerson.setLastReportDate(LocalDate.now());
-        assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), new HashMap<>(), "null"))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("Report has sent");
+                .isInstanceOf(NoAnimalAdoptedException.class);
 
         verify(personRepository, never()).save(any(Person.class));
         verify(reportRepository, never()).save(any(Report.class));
@@ -125,7 +118,7 @@ public class ReportServiceTest {
         testPerson.setAnimal(new Animal(1L, "Test cat"));
         testPerson.setLastReportDate(LocalDate.now());
 
-        when(personRepository.findPersonByChatId(anyLong())).thenReturn(testPerson);
+        when(personRepository.findPersonByChatId(anyLong())).thenReturn(Optional.of(testPerson));
 
         assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), new HashMap<>(), "null"))
                 .isInstanceOf(RuntimeException.class)

@@ -1,24 +1,24 @@
 package ru.vyacheslav.telegrambot_animalshelter_astana.service;
 
-import com.pengrad.telegrambot.model.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramBotConstants;
+import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.NoAnimalAdoptedException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonAlreadyExistsException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextPatternDoesNotMatchException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Person;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.PersonRepository;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramBotConstants.*;
+import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramBotConstants.CONTACT_DATA_PATTERN;
 
 /**
  * @author Oleg Alekseenko
@@ -86,7 +86,8 @@ public class PersonService {
     public Person createPersonFromMessage(Long chatId, String messageText) {
         logger.info("Was invoked method to create person and set their contact data from the message");
         // TODO: 22.11.2022 Проверку на существование пользователя можно перенести в Листенер для вариативности ответа бота
-        if (personRepository.findPersonByChatId(chatId) != null) {
+
+        if (personRepository.findPersonByChatId(chatId).isPresent()) {
             logger.info("Person with {} is already saved in DB", chatId);
             throw new PersonAlreadyExistsException();
         }
@@ -104,6 +105,16 @@ public class PersonService {
         return person;
     }
 
+    public Long countDaysFromAdoption(Long chatId) {
+        Person person = personRepository.findPersonByChatId(chatId).orElseThrow(PersonNotFoundException::new);
+
+        if (person.getAnimal() == null) {
+            throw new NoAnimalAdoptedException();
+        }
+
+        return ChronoUnit.DAYS.between(person.getAnimalAdoptDate(), LocalDate.now());
+    }
+
     private List<String> parseText(String text) {
         Matcher matcher = pattern.matcher(text);
         if (matcher.matches()) {
@@ -118,4 +129,5 @@ public class PersonService {
             throw new TextPatternDoesNotMatchException();
         }
     }
+
 }

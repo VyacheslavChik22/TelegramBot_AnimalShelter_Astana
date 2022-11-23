@@ -14,7 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
+import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.NoAnimalAdoptedException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonAlreadyExistsException;
+import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextPatternDoesNotMatchException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.service.PersonService;
 import ru.vyacheslav.telegrambot_animalshelter_astana.service.ReportService;
@@ -136,7 +138,19 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
                 case "/report":
                     logger.info("Bot start message was received: {}", message.text());
-                    sendMessage(chatId, REPORT_FORM);
+                    // TODO: 22.11.2022 Проверка что 30 дней с момента взятия животного еще не прошло (animalAdoptDate + 30 дней)
+                    Long daysFromAdoption;
+                    try {
+                        daysFromAdoption = personService.countDaysFromAdoption(chatId);
+                    } catch (PersonNotFoundException | NoAnimalAdoptedException e) {
+                        sendMessage(chatId, e.getMessage());
+                        return;
+                    }
+                    if (daysFromAdoption > 30) {
+                        sendMessage(chatId, NO_MORE_REPORTS);
+                    } else {
+                        sendMessage(chatId, REPORT_FORM);
+                    }
                     break;
 
                 case "/call":

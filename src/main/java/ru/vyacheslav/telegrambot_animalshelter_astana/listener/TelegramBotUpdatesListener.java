@@ -12,22 +12,19 @@ import com.pengrad.telegrambot.response.GetFileResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.NoAnimalAdoptedException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonAlreadyExistsException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
-import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextPatternDoesNotMatchException;
+import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextDoesNotMatchPatternException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.service.PersonService;
 import ru.vyacheslav.telegrambot_animalshelter_astana.service.ReportService;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramBotConstants.*;
 
@@ -97,7 +94,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 } catch (PersonAlreadyExistsException e) {
                     sendMessage(chatId, "Ваши контактные данные уже сохранены");
                     return;
-                } catch (TextPatternDoesNotMatchException e) {
+                } catch (TextDoesNotMatchPatternException e) {
                     sendMessage(chatId, "Текст не соответствует шаблону, нажмите /repeat и попробуйте еще раз");
                 }
             }
@@ -138,7 +135,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
                 case "/report":
                     logger.info("Bot start message was received: {}", message.text());
-                    // TODO: 22.11.2022 Проверка что 30 дней с момента взятия животного еще не прошло (animalAdoptDate + 30 дней)
+                    // Получаем дни с момента получения животного
                     Long daysFromAdoption;
                     try {
                         daysFromAdoption = personService.countDaysFromAdoption(chatId);
@@ -146,9 +143,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         sendMessage(chatId, e.getMessage());
                         return;
                     }
+                    // Если больше 30 дней - отправляем сообщение, что отчеты больше не нужны
                     if (daysFromAdoption > 30) {
                         sendMessage(chatId, NO_MORE_REPORTS);
                     } else {
+                        // Если меньше - отправляем форму отчета
                         sendMessage(chatId, REPORT_FORM);
                     }
                     break;
@@ -272,6 +271,14 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         }
     }
 
+    /**
+     * Checks if user's message contains picture and text.
+     * If something missed - throw exception.
+     *
+     * @param photoSizes telegram's object represents photo-file from a message
+     * @param caption text field from a message with photo
+     * @throws RuntimeException with description which param is null
+     */
     private void checkIfReportMessageEligible(PhotoSize[] photoSizes, String caption) {
         if (photoSizes == null) {
             throw new RuntimeException("No photo");
@@ -281,6 +288,14 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         }
     }
 
+    /**
+     * Extracts data from telegram's object represents photo-file and
+     * forms a map object with this data.
+     *
+     * @param photoSizes telegram's object represents photo-file from a message
+     * @return {@link Map} with various data extracted from photo file
+     * @throws IOException
+     */
     private Map<String, Object> extractPhotoData(PhotoSize[] photoSizes) throws IOException {
 
         PhotoSize photoObject = photoSizes[1];
@@ -291,7 +306,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         byte[] fileData = telegramBot.getFileContent(file);
 
         // Form map to transfer to ReportService.createReportFromMessage method
-        HashMap<String, Object> fileFields = new HashMap<>();
+        Map<String, Object> fileFields = new HashMap<>();
         fileFields.put("mediaType", fileRequest.getContentType());
         fileFields.put("photoData", fileData);
         fileFields.put("photoSize", file.fileSize());

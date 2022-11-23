@@ -8,7 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.NoAnimalAdoptedException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonAlreadyExistsException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
-import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextPatternDoesNotMatchException;
+import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextDoesNotMatchPatternException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Person;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.PersonRepository;
 
@@ -138,7 +138,7 @@ public class PersonServiceTest {
 
         when(personRepository.findPersonByChatId(anyLong())).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> out.createPersonFromMessage(anyLong(), testMessage)).isInstanceOf(TextPatternDoesNotMatchException.class);
+        assertThatThrownBy(() -> out.createPersonFromMessage(anyLong(), testMessage)).isInstanceOf(TextDoesNotMatchPatternException.class);
         verify(personRepository, never()).save(any(Person.class));
     }
 

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.NoAnimalAdoptedException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonAlreadyExistsException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
-import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextPatternDoesNotMatchException;
+import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextDoesNotMatchPatternException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Person;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.PersonRepository;
 
@@ -83,9 +83,16 @@ public class PersonService {
         personRepository.delete(person);
     }
 
+    /**
+     * Creates person entity from the text message and saves it in DB
+     *
+     * @param chatId chat identification number from the telegram {@link com.pengrad.telegrambot.model.Message} object
+     * @param messageText text from the telegram {@link com.pengrad.telegrambot.model.Message} object
+     * @return person entity
+     * @throws PersonAlreadyExistsException if DB contains entry with such chatId
+     */
     public Person createPersonFromMessage(Long chatId, String messageText) {
         logger.info("Was invoked method to create person and set their contact data from the message");
-        // TODO: 22.11.2022 Проверку на существование пользователя можно перенести в Листенер для вариативности ответа бота
 
         if (personRepository.findPersonByChatId(chatId).isPresent()) {
             logger.info("Person with {} is already saved in DB", chatId);
@@ -101,10 +108,16 @@ public class PersonService {
         person.setAddress(contact_data.get(3));
         person.setChatId(chatId);
         // Save new person with contact details to DB
-        createPerson(person);
-        return person;
+        return createPerson(person);
     }
 
+    /**
+     * Counts number of days from pet adoption until now for person with chatId
+     * @param chatId chat identification number from the telegram {@link com.pengrad.telegrambot.model.Message} object
+     * @return number of days
+     * @throws PersonNotFoundException when there is no person with such chatId in DB
+     * @throws NoAnimalAdoptedException if person doesn't have adopted animal
+     */
     public Long countDaysFromAdoption(Long chatId) {
         Person person = personRepository.findPersonByChatId(chatId).orElseThrow(PersonNotFoundException::new);
 
@@ -115,6 +128,14 @@ public class PersonService {
         return ChronoUnit.DAYS.between(person.getAnimalAdoptDate(), LocalDate.now());
     }
 
+    /**
+     * Check if string matches the pattern and return list of it parts.
+     * If string doesn't match throws exception.
+     *
+     * @param text string to parse
+     * @return list of strings: name, phone, email, address
+     * @throws TextDoesNotMatchPatternException
+     */
     private List<String> parseText(String text) {
         Matcher matcher = pattern.matcher(text);
         if (matcher.matches()) {
@@ -126,7 +147,7 @@ public class PersonService {
             return List.of(name, phone, email, address);
         } else {
             logger.info("User input doesn't match the pattern: {}", text);
-            throw new TextPatternDoesNotMatchException();
+            throw new TextDoesNotMatchPatternException();
         }
     }
 

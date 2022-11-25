@@ -27,7 +27,7 @@ public class ReportCat {
     }
 
     @ManyToOne
-    @JoinColumn(name = "person_cat_id")
+    //@JoinColumn(name = "person_cat_id")
     private PersonCat personCat;
 
     public PersonCat getPersonCat() {

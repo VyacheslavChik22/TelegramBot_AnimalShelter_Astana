@@ -35,7 +35,7 @@ public class PersonCat {
     }
 
     @JsonIgnore
-    @OneToMany(mappedBy = "person_cat")
+    @OneToMany(mappedBy = "personCat")
     private Set<ReportCat> reportsCat;
 
     public Set<ReportCat> getReportsCat() {

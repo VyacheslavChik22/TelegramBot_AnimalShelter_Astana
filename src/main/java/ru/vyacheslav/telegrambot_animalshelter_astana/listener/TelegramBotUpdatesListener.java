@@ -57,6 +57,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
             // If the server connection was lost, then message object can be null
             // So we ignore it in this case
+
             if (message == null || message.text()==null && message.replyToMessage() == null) {
                 return;
             }
@@ -163,17 +164,17 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     break;
 
 
-                           //*********************--menu2--******************
+                //*********************--menu2--******************
                 case "/consultation_Dog":
                     // Send GREETINGS_MSG if START_CMD was found
                     logger.info("Bot start message was received: {}", message.text());
-                    sendMessage(chatId,update.message().chat().username() + ", " +  LIST_MENU_CONSULTATION_DOG);
+                    sendMessage(chatId, update.message().chat().username() + ", " + LIST_MENU_CONSULTATION_DOG);
                     break;
 
                 case "/consultation_Cat":
                     // Send GREETINGS_MSG if START_CMD was found
                     logger.info("Bot start message was received: {}", message.text());
-                    sendMessage(chatId,update.message().chat().username() + ", " +  LIST_MENU_CONSULTATION_CAT);
+                    sendMessage(chatId, update.message().chat().username() + ", " + LIST_MENU_CONSULTATION_CAT);
                     break;
 
                 case "/documents_Dog":
@@ -188,6 +189,17 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     sendMessage(chatId, DOCUMENTS_TEXT_CAT);
                     break;
 
+                case "/transportation_Dog":
+                    // Send GREETINGS_MSG if START_CMD was found
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, TRANSPORTATION_TEXT_DOG);
+                    break;
+
+                case "/transportation_Cat":
+                    // Send GREETINGS_MSG if START_CMD was found
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, TRANSPORTATION_TEXT_CAT);
+                    break;
 
                 case "/acquaintance_Dog":
                     // Send GREETINGS_MSG if START_CMD was found
@@ -212,7 +224,6 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     logger.info("Bot start message was received: {}", message.text());
                     sendMessage(chatId, ADVICE_LITTLE_TEXT_CAT);
                     break;
-
 
                 case "/advice_big_Dog":
                     // Send GREETINGS_MSG if START_CMD was found
@@ -244,10 +255,21 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     sendMessage(chatId, REJECTION_REASONS);
                     break;
 
+                case "/advices_cynologist":
+                    // Send GREETINGS_MSG if START_CMD was found
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, ADVICES_CYNOLOGIST);
+                    break;
+
+                case "/tested_cynologists":
+                    // Send GREETINGS_MSG if START_CMD was found
+                    logger.info("Bot start message was received: {}", message.text());
+                    sendMessage(chatId, TESTED_CYNOLOGIST);
+                    break;
+
                 default:
                     sendMessage(chatId, DEFAULT_TEXT);
             }
-
 
         });
         return UpdatesListener.CONFIRMED_UPDATES_ALL;

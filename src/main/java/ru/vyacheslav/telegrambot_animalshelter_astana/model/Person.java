@@ -24,7 +24,7 @@ public class Person {
 
 
     @OneToOne
-    @JoinColumn(name = "animal_form")
+    @JoinColumn(name = "animal_id")
     private Animal animal;
 
     public Animal getAnimal() {

@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 
     @Test
     public void createAnimalTest(){
-        Animal testAnimal = new Animal(1L,  Animal.AnimalForm.DOG);
+        Animal testAnimal = new Animal(1L, "  ",  Animal.AnimalForm.DOG);
 
     when(animalRepository.save(testAnimal)).thenReturn(testAnimal);
     assertThat(animalRepository.save(testAnimal)).isEqualTo(animalService.createAnimal(testAnimal));
@@ -37,8 +37,8 @@ import static org.mockito.Mockito.when;
 
     @Test
     public void getAnimalTest() {
-        Animal firstAnimal = new Animal(1L,  Animal.AnimalForm.CAT);
-        Animal secondAnimal = new Animal(2L, Animal.AnimalForm.CAT);
+        Animal firstAnimal = new Animal(1L, " ",  Animal.AnimalForm.CAT);
+        Animal secondAnimal = new Animal(2L," ",  Animal.AnimalForm.CAT);
         animalService.createAnimal(firstAnimal);
         animalService.createAnimal(secondAnimal);
 
@@ -48,8 +48,8 @@ import static org.mockito.Mockito.when;
 
     @Test
     public void getAllAnimalsTest(){
-        Animal firstAnimal = new Animal(1L,  Animal.AnimalForm.DOG);
-        Animal secondAnimal = new Animal(2L, Animal.AnimalForm.DOG);
+        Animal firstAnimal = new Animal(1L," ",   Animal.AnimalForm.DOG);
+        Animal secondAnimal = new Animal(2L, "  ", Animal.AnimalForm.DOG);
         animalService.createAnimal(firstAnimal);
         animalService.createAnimal(secondAnimal);
 
@@ -59,9 +59,9 @@ import static org.mockito.Mockito.when;
 
     @Test
     public void totalAmountOfAnimalTest(){
-        Animal firstAnimal = new Animal(1L,  Animal.AnimalForm.DOG);
-        Animal secondAnimal = new Animal(2L, Animal.AnimalForm.DOG);
-        Animal thirdAnimal = new Animal(3L,  Animal.AnimalForm.DOG);
+        Animal firstAnimal = new Animal(1L," ",  Animal.AnimalForm.DOG);
+        Animal secondAnimal = new Animal(2L, "    ",  Animal.AnimalForm.DOG);
+        Animal thirdAnimal = new Animal(3L," " ,  Animal.AnimalForm.DOG);
         animalService.createAnimal(firstAnimal);
         animalService.createAnimal(secondAnimal);
         animalService.createAnimal(thirdAnimal);
@@ -72,7 +72,7 @@ import static org.mockito.Mockito.when;
 
     @Test
     public void deleteAnimalTest() {
-        Animal firstAnimal = new Animal(1L,  Animal.AnimalForm.DOG);
+        Animal firstAnimal = new Animal(1L,"   ",  Animal.AnimalForm.DOG);
         animalService.createAnimal(firstAnimal);
 
         when(animalRepository.findById(1L)).thenReturn(Optional.of(firstAnimal));
@@ -96,10 +96,10 @@ import static org.mockito.Mockito.when;
                     .isInstanceOf(AnimalNotFoundException.class);
         }
 
-        public static Animal testAnimal(long id) {
+        public static Animal testAnimal(long id, String name) {
             Animal testAnimal = new Animal();
             testAnimal.setId(id);
-            //testAnimal.setName(name);
+            testAnimal.setName(name);
             return testAnimal;
         }
 }

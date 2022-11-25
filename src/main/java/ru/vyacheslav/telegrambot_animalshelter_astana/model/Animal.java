@@ -20,22 +20,17 @@ public class Animal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    //private String name;
+    private String name;
 
     @Enumerated(EnumType.STRING)
     private AnimalForm form;
 
-    @OneToOne
-    @JoinColumn(name = "person_id")
-    @JsonIgnore
-    public Person person;
-
     public Animal() {
     }
 
-    public Animal(Long id, AnimalForm form) {
+    public Animal(Long id, String name,  AnimalForm form) {
         this.id = id;
-      //  this.name = name;
+        this.name = name;
         this.form = form;
     }
 
@@ -47,13 +42,13 @@ public class Animal {
         this.id = id;
     }
 
-    //public String getName() {
-    //    return name;
-   // }
+    public String getName() {
+       return name;
+    }
 
-   // public void setName(String name) {
-   //     this.name = name;
-   // }
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public AnimalForm getForm() {
         return form;

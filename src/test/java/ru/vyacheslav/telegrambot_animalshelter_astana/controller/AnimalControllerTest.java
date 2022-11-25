@@ -50,7 +50,7 @@ public class AnimalControllerTest {
 
         Animal animal = new Animal();
         animal.setId(id);
-        animal.setName(name);
+       // animal.setName(name);
 
         when(animalRepository.save(any(Animal.class))).thenReturn(animal);
         when(animalRepository.findById(id)).thenReturn(Optional.of(animal));
@@ -70,7 +70,7 @@ public class AnimalControllerTest {
 
         Animal animal = new Animal();
         animal.setId(id);
-        animal.setName(name);
+        //animal.setName(name);
 
         when(animalRepository.findById(id)).thenReturn(Optional.of(animal));
 
@@ -87,7 +87,7 @@ public class AnimalControllerTest {
 
         Animal animal = new Animal();
         animal.setId(id);
-        animal.setName(name);
+        //animal.setName(name);
 
        when(animalRepository.totalAmountOfAnimal()).thenReturn(1);
 
@@ -103,7 +103,7 @@ public class AnimalControllerTest {
 
         Animal animal = new Animal();
         animal.setId(id);
-        animal.setName(name);
+        //animal.setName(name);
 
         when(animalRepository.findAll()).thenReturn(List.of(animal));
 
@@ -120,7 +120,7 @@ public class AnimalControllerTest {
 
         Animal animal = new Animal();
         animal.setId(id);
-        animal.setName(name);
+       // animal.setName(name);
 
         when(animalRepository.findById(id)).thenReturn(Optional.of(animal));
         doNothing().when(animalRepository).delete(any(Animal.class));

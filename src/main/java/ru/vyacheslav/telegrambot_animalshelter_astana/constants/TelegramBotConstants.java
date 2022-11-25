@@ -14,6 +14,8 @@ public class TelegramBotConstants {
             "\nОтчет нужно присылать каждый день, ограничений в сутках по времени сдачи отчета нет." +
             "\n/start";
 
+    public static final String NO_MORE_REPORTS = "Вам больше не нужно присылать отчеты!";
+
     // У меня в боте меню красиво выглядит благодаря такой невыравненности здесь.
     public static final String LIST_MENU_DOG =
             "/info_shelterDog   -  Узнать информацию о приюте для собак\n" +
@@ -33,10 +35,10 @@ public class TelegramBotConstants {
 
 
     public static final String CONTACT_TEXT = "\"Пришлите ваши контакты по заданной форме:\n" +
-            "* Имя.\n" +
-            "* Email.\n" +
-            "* Телефон.\n" +
-            "* Адрес.\n" +
+            "Имя: Ваше имя;\n" +
+            "Телефон: +70001234567;\n" +
+            "Email: email@email.com;\n" +
+            "Адрес: Ваш адрес\n" +
             "\n/start";
 
 
@@ -267,6 +269,9 @@ public class TelegramBotConstants {
                     "4 Съемное жилье\n" +
                     "5 Животное в подарок или для работы\n" +
                     "\n/start";
+
+
+    public static String CONTACT_DATA_PATTERN = "(Имя:)(\\s)(\\w+);\n(Телефон:)(\\s)\\+([0-9]{11});\n(Email:)(\\s)([\\w\\-\\.]+@([\\w-]+\\.)+[\\w-]{2,4});\n(Адрес:)(\\s)(\\w+)";
 
 
     public static final String ADVICES_CYNOLOGIST =

@@ -2,35 +2,47 @@ package ru.vyacheslav.telegrambot_animalshelter_astana.listener;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
+import com.pengrad.telegrambot.model.File;
 import com.pengrad.telegrambot.model.Message;
+import com.pengrad.telegrambot.model.PhotoSize;
 import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.request.GetFile;
 import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.response.GetFileResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import ru.vyacheslav.telegrambot_animalshelter_astana.repository.ReportRepository;
+import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.NoAnimalAdoptedException;
+import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonAlreadyExistsException;
+import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
+import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextDoesNotMatchPatternException;
+import ru.vyacheslav.telegrambot_animalshelter_astana.service.PersonService;
+import ru.vyacheslav.telegrambot_animalshelter_astana.service.ReportService;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramBotConstants.*;
 
 @Service
 public class TelegramBotUpdatesListener implements UpdatesListener {
 
-    private final ReportRepository reportRepository;
+    private final ReportService reportService;
+    private final PersonService personService;
 
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
 
     private final TelegramBot telegramBot;
 
-    public TelegramBotUpdatesListener(ReportRepository reportRepository, TelegramBot telegramBot) {
-        this.reportRepository = reportRepository;
+    public TelegramBotUpdatesListener(ReportService reportService, PersonService personService, TelegramBot telegramBot) {
+        this.reportService = reportService;
+        this.personService = personService;
         this.telegramBot = telegramBot;
-
     }
-
 
     @PostConstruct
     public void init() {
@@ -42,13 +54,52 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         updates.forEach(update -> {
             logger.info("Processing update: {}", update);
             Message message = update.message();
+
             // If the server connection was lost, then message object can be null
             // So we ignore it in this case
-            if (message == null || message.text() == null) {
+
+            if (message == null || message.text()==null && message.replyToMessage() == null) {
                 return;
             }
 
             Long chatId = message.chat().id();
+
+            // Если пользователь отвечает на сообщение о подаче репорта
+            // можно проверять ключевое слово из сообщения бота (напрмер фото) вместо команды
+            if (message.replyToMessage() != null && message.replyToMessage().text().equals(REPORT_FORM)) {
+                try {
+                    checkIfReportMessageEligible(message.photo(), message.caption());
+
+                    Map<String, Object> fileMap = extractPhotoData(message.photo());
+                    reportService.createReportFromMessage(chatId, fileMap, message.caption());
+
+                    sendMessage(chatId, "Отчет сохранен");
+                    sendMessage(chatId, "/start");
+                    return;
+                } catch (IOException e) {
+                    throw new RuntimeException("Проблема с сохранением фото");
+                } catch (RuntimeException e) {
+                    sendMessage(chatId, "Ошибка в отчете: " + e.getMessage());
+                    return;
+                }
+            }
+
+            // Если пользователь отвечает на сообщение о своих контактных данных
+            // можно проверять ключевое слово из сообщения бота (напрмер почта) вместо команды
+            if (message.replyToMessage() != null && message.replyToMessage().text().equals(CONTACT_TEXT)) {
+                try {
+                    personService.createPersonFromMessage(chatId, message.text());
+                    sendMessage(chatId, "Контактные данные сохранены");
+                    sendMessage(chatId, "/start");
+                    return;
+                } catch (PersonAlreadyExistsException e) {
+                    sendMessage(chatId, "Ваши контактные данные уже сохранены");
+                    return;
+                } catch (TextDoesNotMatchPatternException e) {
+                    sendMessage(chatId, "Текст не соответствует шаблону, нажмите /repeat и попробуйте еще раз");
+                }
+            }
+
             switch (message.text()) {
                 case "/start":
                     logger.info("Bot start message was received: {}", message.text());
@@ -85,7 +136,21 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
                 case "/report":
                     logger.info("Bot start message was received: {}", message.text());
-                    sendMessage(chatId, REPORT_FORM);
+                    // Получаем дни с момента получения животного
+                    Long daysFromAdoption;
+                    try {
+                        daysFromAdoption = personService.countDaysFromAdoption(chatId);
+                    } catch (PersonNotFoundException | NoAnimalAdoptedException e) {
+                        sendMessage(chatId, e.getMessage());
+                        return;
+                    }
+                    // Если больше 30 дней - отправляем сообщение, что отчеты больше не нужны
+                    if (daysFromAdoption > 30) {
+                        sendMessage(chatId, NO_MORE_REPORTS);
+                    } else {
+                        // Если меньше - отправляем форму отчета
+                        sendMessage(chatId, REPORT_FORM);
+                    }
                     break;
 
                 case "/call":
@@ -226,6 +291,50 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         if (!response.isOk()) {
             logger.warn("Message was not sent, error code: {}", response.errorCode());
         }
+    }
+
+    /**
+     * Checks if user's message contains picture and text.
+     * If something missed - throw exception.
+     *
+     * @param photoSizes telegram's object represents photo-file from a message
+     * @param caption text field from a message with photo
+     * @throws RuntimeException with description which param is null
+     */
+    private void checkIfReportMessageEligible(PhotoSize[] photoSizes, String caption) {
+        if (photoSizes == null) {
+            throw new RuntimeException("No photo");
+        }
+        if (caption == null) {
+            throw new RuntimeException("No text");
+        }
+    }
+
+    /**
+     * Extracts data from telegram's object represents photo-file and
+     * forms a map object with this data.
+     *
+     * @param photoSizes telegram's object represents photo-file from a message
+     * @return {@link Map} with various data extracted from photo file
+     * @throws IOException
+     */
+    private Map<String, Object> extractPhotoData(PhotoSize[] photoSizes) throws IOException {
+
+        PhotoSize photoObject = photoSizes[1];
+
+        GetFile fileRequest = new GetFile(photoObject.fileId());
+        GetFileResponse fileResponse = telegramBot.execute(fileRequest);
+        File file = fileResponse.file();
+        byte[] fileData = telegramBot.getFileContent(file);
+
+        // Form map to transfer to ReportService.createReportFromMessage method
+        Map<String, Object> fileFields = new HashMap<>();
+        fileFields.put("mediaType", fileRequest.getContentType());
+        fileFields.put("photoData", fileData);
+        fileFields.put("photoSize", file.fileSize());
+        fileFields.put("photoPath", file.filePath());
+
+        return fileFields;
     }
 
     //@Scheduled(cron = "0 0 * * *") //здесь должен быть метод для напоминания пользователю предоставить отчет

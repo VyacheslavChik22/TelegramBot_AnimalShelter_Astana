@@ -21,7 +21,6 @@ public class Report {
     private String mediaType;
     @Lob
     @Type(type = "org.hibernate.type.BinaryType")
-
     private byte[] photoData;
     private String description;
     private LocalDate reportDate;

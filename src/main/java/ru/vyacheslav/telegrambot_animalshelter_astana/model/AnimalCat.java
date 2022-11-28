@@ -1,27 +1,21 @@
 package ru.vyacheslav.telegrambot_animalshelter_astana.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.Objects;
-import java.util.Set;
-
 
 @Entity
-@Table(name = "Animal")
-public class Animal {
+@Table(name = "Animal_cat")
+public class AnimalCat {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
 
-
-    public Animal() {
+    public AnimalCat() {
     }
 
-    public Animal(Long id, String name) {
+    public AnimalCat(Long id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -46,8 +40,8 @@ public class Animal {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Animal animal = (Animal) o;
-        return id.equals(animal.id) && name.equals(animal.name);
+        AnimalCat animalCat = (AnimalCat) o;
+        return id.equals(animalCat.id) && name.equals(animalCat.name);
     }
 
     @Override
@@ -57,7 +51,7 @@ public class Animal {
 
     @Override
     public String toString() {
-        return "Animal{" +
+        return "AnimalCat{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 '}';

@@ -6,13 +6,11 @@ import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Objects;
-/**
- * Report class from user
- *
- */
+
 @Entity
-@Table(name = "Report")
-public class Report {
+@Table(name = "Report_cat")
+public class ReportCat {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,23 +23,22 @@ public class Report {
     private String description;
     private LocalDate reportDate;
 
-
-    public Report() {
+    public ReportCat() {
     }
 
     @ManyToOne
-    @JoinColumn(name = "person_id")
-    private Person person;
+    //@JoinColumn(name = "person_cat_id")
+    private PersonCat personCat;
 
-    public Person getPerson() {
-        return person;
+    public PersonCat getPersonCat() {
+        return personCat;
     }
 
-    public void setPerson(Person person) {
-        this.person = person;
+    public void setPersonCat(PersonCat personCat) {
+        this.personCat = personCat;
     }
 
-    public Report(Long id, String photoPath, Integer photoSize, String mediaType, byte[] photoData, String description, LocalDate reportDate) {
+    public ReportCat(Long id, String photoPath, Integer photoSize, String mediaType, byte[] photoData, String description, LocalDate reportDate, PersonCat personCat) {
         this.id = id;
         this.photoPath = photoPath;
         this.photoSize = photoSize;
@@ -49,8 +46,8 @@ public class Report {
         this.photoData = photoData;
         this.description = description;
         this.reportDate = reportDate;
+        this.personCat = personCat;
     }
-
 
     public Long getId() {
         return id;
@@ -108,26 +105,24 @@ public class Report {
         this.reportDate = reportDate;
     }
 
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Report report = (Report) o;
-        return Objects.equals(id, report.id) && Objects.equals(photoPath, report.photoPath) && Objects.equals(photoSize, report.photoSize) && Objects.equals(mediaType, report.mediaType) && Arrays.equals(photoData, report.photoData) && Objects.equals(description, report.description) && Objects.equals(reportDate, report.reportDate);
+        ReportCat reportCat = (ReportCat) o;
+        return id.equals(reportCat.id) && photoPath.equals(reportCat.photoPath) && photoSize.equals(reportCat.photoSize) && mediaType.equals(reportCat.mediaType) && Arrays.equals(photoData, reportCat.photoData) && description.equals(reportCat.description) && reportDate.equals(reportCat.reportDate) && personCat.equals(reportCat.personCat);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, photoPath, photoSize, mediaType, description, reportDate);
+        int result = Objects.hash(id, photoPath, photoSize, mediaType, description, reportDate, personCat);
         result = 31 * result + Arrays.hashCode(photoData);
         return result;
     }
 
     @Override
     public String toString() {
-        return "Report{" +
+        return "ReportCat{" +
                 "id=" + id +
                 ", photoPath='" + photoPath + '\'' +
                 ", photoSize=" + photoSize +
@@ -135,6 +130,7 @@ public class Report {
                 ", photoData=" + Arrays.toString(photoData) +
                 ", description='" + description + '\'' +
                 ", reportDate=" + reportDate +
+                ", personCat=" + personCat +
                 '}';
     }
 }

@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 
     @Test
     public void createAnimalTest(){
-        Animal testAnimal = new Animal(1L, "Dog");
+        Animal testAnimal = new Animal(1L, "  ");
 
     when(animalRepository.save(testAnimal)).thenReturn(testAnimal);
     assertThat(animalRepository.save(testAnimal)).isEqualTo(animalService.createAnimal(testAnimal));
@@ -37,8 +37,8 @@ import static org.mockito.Mockito.when;
 
     @Test
     public void getAnimalTest() {
-        Animal firstAnimal = new Animal(1L, "Dog");
-        Animal secondAnimal = new Animal(2L,"Dog2");
+        Animal firstAnimal = new Animal(1L, " ");
+        Animal secondAnimal = new Animal(2L," ");
         animalService.createAnimal(firstAnimal);
         animalService.createAnimal(secondAnimal);
 
@@ -48,8 +48,8 @@ import static org.mockito.Mockito.when;
 
     @Test
     public void getAllAnimalsTest(){
-        Animal firstAnimal = new Animal(1L, "Dog");
-        Animal secondAnimal = new Animal(2L,"Dog2");
+        Animal firstAnimal = new Animal(1L," ");
+        Animal secondAnimal = new Animal(2L, "  ");
         animalService.createAnimal(firstAnimal);
         animalService.createAnimal(secondAnimal);
 
@@ -59,9 +59,9 @@ import static org.mockito.Mockito.when;
 
     @Test
     public void totalAmountOfAnimalTest(){
-        Animal firstAnimal = new Animal(1L, "Dog");
-        Animal secondAnimal = new Animal(2L,"Dog2");
-        Animal thirdAnimal = new Animal(3L, "Dog3");
+        Animal firstAnimal = new Animal(1L," ");
+        Animal secondAnimal = new Animal(2L, "    ");
+        Animal thirdAnimal = new Animal(3L," " );
         animalService.createAnimal(firstAnimal);
         animalService.createAnimal(secondAnimal);
         animalService.createAnimal(thirdAnimal);
@@ -72,7 +72,7 @@ import static org.mockito.Mockito.when;
 
     @Test
     public void deleteAnimalTest() {
-        Animal firstAnimal = new Animal(1L, "Dog");
+        Animal firstAnimal = new Animal(1L,"   ");
         animalService.createAnimal(firstAnimal);
 
         when(animalRepository.findById(1L)).thenReturn(Optional.of(firstAnimal));

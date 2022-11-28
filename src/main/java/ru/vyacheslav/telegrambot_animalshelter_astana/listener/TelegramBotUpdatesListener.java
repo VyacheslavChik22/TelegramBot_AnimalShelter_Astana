@@ -17,8 +17,7 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.NoAnimalAdopted
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonAlreadyExistsException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextDoesNotMatchPatternException;
-import ru.vyacheslav.telegrambot_animalshelter_astana.service.PersonService;
-import ru.vyacheslav.telegrambot_animalshelter_astana.service.ReportService;
+import ru.vyacheslav.telegrambot_animalshelter_astana.service.TelegramBotUpdatesService;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -31,16 +30,14 @@ import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramB
 @Service
 public class TelegramBotUpdatesListener implements UpdatesListener {
 
-    private final ReportService reportService;
-    private final PersonService personService;
+    private final TelegramBotUpdatesService telegramBotUpdatesService;
 
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
 
     private final TelegramBot telegramBot;
 
-    public TelegramBotUpdatesListener(ReportService reportService, PersonService personService, TelegramBot telegramBot) {
-        this.reportService = reportService;
-        this.personService = personService;
+    public TelegramBotUpdatesListener(TelegramBotUpdatesService telegramBotUpdatesService, TelegramBot telegramBot) {
+        this.telegramBotUpdatesService = telegramBotUpdatesService;
         this.telegramBot = telegramBot;
     }
 
@@ -71,7 +68,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     checkIfReportMessageEligible(message.photo(), message.caption());
 
                     Map<String, Object> fileMap = extractPhotoData(message.photo());
-                    reportService.createReportFromMessage(chatId, fileMap, message.caption());
+                    telegramBotUpdatesService.createReportFromMessage(chatId, fileMap, message.caption());
 
                     sendMessage(chatId, "Отчет сохранен");
                     sendMessage(chatId, "/start");
@@ -88,7 +85,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             // можно проверять ключевое слово из сообщения бота (напрмер почта) вместо команды
             if (message.replyToMessage() != null && message.replyToMessage().text().equals(CONTACT_TEXT)) {
                 try {
-                    personService.createPersonFromMessage(chatId, message.text());
+                    telegramBotUpdatesService.createPersonFromMessage(chatId, message.text());
                     sendMessage(chatId, "Контактные данные сохранены");
                     sendMessage(chatId, "/start");
                     return;
@@ -139,7 +136,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     // Получаем дни с момента получения животного
                     Long daysFromAdoption;
                     try {
-                        daysFromAdoption = personService.countDaysFromAdoption(chatId);
+                        daysFromAdoption = telegramBotUpdatesService.countDaysFromAdoption(chatId);
                     } catch (PersonNotFoundException | NoAnimalAdoptedException e) {
                         sendMessage(chatId, e.getMessage());
                         return;

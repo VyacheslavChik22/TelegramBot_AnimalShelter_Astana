@@ -17,13 +17,17 @@ public class Animal {
     private Long id;
     private String name;
 
+    @Enumerated(value = EnumType.STRING)
+    private AnimalType animalType;
+
 
     public Animal() {
     }
 
-    public Animal(Long id, String name) {
+    public Animal(Long id, String name, AnimalType animalType) {
         this.id = id;
         this.name = name;
+        this.animalType = animalType;
     }
 
     public Long getId() {
@@ -42,17 +46,25 @@ public class Animal {
         this.name = name;
     }
 
+    public AnimalType getAnimalType() {
+        return animalType;
+    }
+
+    public void setAnimalType(AnimalType animalType) {
+        this.animalType = animalType;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Animal animal = (Animal) o;
-        return id.equals(animal.id) && name.equals(animal.name);
+        return Objects.equals(id, animal.id) && Objects.equals(name, animal.name) && animalType == animal.animalType;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name);
+        return Objects.hash(id, name, animalType);
     }
 
     @Override
@@ -60,6 +72,7 @@ public class Animal {
         return "Animal{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", animalType=" + animalType +
                 '}';
     }
 }

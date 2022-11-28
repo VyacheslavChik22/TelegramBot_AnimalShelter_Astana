@@ -33,12 +33,24 @@ public class Report {
     @JoinColumn(name = "person_id")
     private Person person;
 
+    @ManyToOne
+    @JoinColumn(name = "person_cat_id")
+    private PersonCat personCat;
+
     public Person getPerson() {
         return person;
     }
 
     public void setPerson(Person person) {
         this.person = person;
+    }
+
+    public PersonCat getPersonCat() {
+        return personCat;
+    }
+
+    public void setPersonCat(PersonCat personCat) {
+        this.personCat = personCat;
     }
 
     public Report(Long id, String photoPath, Integer photoSize, String mediaType, byte[] photoData, String description, LocalDate reportDate) {

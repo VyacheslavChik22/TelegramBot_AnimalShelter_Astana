@@ -10,6 +10,7 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.NoAnimalAdopted
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.ReportNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Animal;
+import ru.vyacheslav.telegrambot_animalshelter_astana.model.AnimalType;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Person;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Report;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.PersonRepository;
@@ -112,7 +113,7 @@ public class ReportServiceTest {
         Person testPerson = new Person();
         testPerson.setId(1L);
         testPerson.setChatId(1L);
-        testPerson.setAnimal(new Animal(1L, "Test cat"));
+        testPerson.setAnimal(new Animal(1L, "Test cat", AnimalType.CAT));
         testPerson.setLastReportDate(LocalDate.now());
 
         when(personRepository.findPersonByChatId(anyLong())).thenReturn(Optional.of(testPerson));
@@ -130,7 +131,7 @@ public class ReportServiceTest {
         Person testPerson = new Person();
         testPerson.setId(1L);
         testPerson.setChatId(1L);
-        testPerson.setAnimal(new Animal(1L, "Test cat"));
+        testPerson.setAnimal(new Animal(1L, "Test cat", AnimalType.CAT));
 
         String caption = "text";
 

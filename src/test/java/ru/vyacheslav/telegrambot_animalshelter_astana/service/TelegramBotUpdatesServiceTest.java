@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.vyacheslav.telegrambot_animalshelter_astana.dto.FotoObjectDto;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.NoAnimalAdoptedException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonAlreadyExistsException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
@@ -12,8 +13,6 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextDoesNotMatc
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.*;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -152,7 +151,7 @@ public class TelegramBotUpdatesServiceTest {
 
         when(personService.findPersonByChatId(anyLong())).thenReturn(Optional.of(testPerson));
 
-        assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), new HashMap<>(), "null", AnimalType.DOG))
+        assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), new FotoObjectDto(), "null", AnimalType.DOG))
                 .isInstanceOf(NoAnimalAdoptedException.class);
 
         verify(personService, never()).updatePerson(any(Person.class));
@@ -169,7 +168,7 @@ public class TelegramBotUpdatesServiceTest {
 
         when(personService.findPersonByChatId(anyLong())).thenReturn(Optional.of(testPerson));
 
-        assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), new HashMap<>(), "null", AnimalType.DOG))
+        assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), new FotoObjectDto(), "null", AnimalType.DOG))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("Report has sent");
 
@@ -186,24 +185,20 @@ public class TelegramBotUpdatesServiceTest {
 
         String caption = "text";
 
-        Map<String, Object> fileFields = new HashMap<>();
-        fileFields.put("mediaType", "type");
-        fileFields.put("photoData", new byte[1]);
-        fileFields.put("photoSize", 1);
-        fileFields.put("photoPath", "path");
+        FotoObjectDto fotoObjDto = new FotoObjectDto("type", "path", new byte[1], 1);
 
         Report testReport = addTestReport(1L, caption);
         testReport.setReportDate(LocalDate.now());
-        testReport.setPhotoPath((String) fileFields.get("photoPath"));
-        testReport.setPhotoSize((Integer) fileFields.get("photoSize"));
-        testReport.setPhotoData((byte[]) fileFields.get("photoData"));
-        testReport.setMediaType((String) fileFields.get("mediaType"));
+        testReport.setPhotoPath(fotoObjDto.getPhotoPath());
+        testReport.setPhotoSize(fotoObjDto.getPhotoSize());
+        testReport.setPhotoData(fotoObjDto.getPhotoData());
+        testReport.setMediaType(fotoObjDto.getMediaType());
         testReport.setPerson(testPerson);
 
         when(personService.findPersonByChatId(anyLong())).thenReturn(Optional.of(testPerson));
         when(reportService.addReport(any(Report.class))).thenReturn(testReport);
 
-        Report result = out.createReportFromMessage(testPerson.getChatId(), fileFields, caption, AnimalType.DOG);
+        Report result = out.createReportFromMessage(testPerson.getChatId(), fotoObjDto, caption, AnimalType.DOG);
 
         assertThat(result).isNotNull()
                 .isInstanceOf(Report.class)
@@ -220,24 +215,20 @@ public class TelegramBotUpdatesServiceTest {
 
         String caption = "text";
 
-        Map<String, Object> fileFields = new HashMap<>();
-        fileFields.put("mediaType", "type");
-        fileFields.put("photoData", new byte[1]);
-        fileFields.put("photoSize", 1);
-        fileFields.put("photoPath", "path");
+        FotoObjectDto fotoObjDto = new FotoObjectDto("type", "path", new byte[1], 1);
 
         Report testReport = addTestReport(1L, caption);
         testReport.setReportDate(LocalDate.now());
-        testReport.setPhotoPath((String) fileFields.get("photoPath"));
-        testReport.setPhotoSize((Integer) fileFields.get("photoSize"));
-        testReport.setPhotoData((byte[]) fileFields.get("photoData"));
-        testReport.setMediaType((String) fileFields.get("mediaType"));
+        testReport.setPhotoPath(fotoObjDto.getPhotoPath());
+        testReport.setPhotoSize(fotoObjDto.getPhotoSize());
+        testReport.setPhotoData(fotoObjDto.getPhotoData());
+        testReport.setMediaType(fotoObjDto.getMediaType());
         testReport.setPersonCat(testPerson);
 
         when(personCatService.findPersonByChatId(anyLong())).thenReturn(Optional.of(testPerson));
         when(reportService.addReport(any(Report.class))).thenReturn(testReport);
 
-        Report result = out.createReportFromMessage(testPerson.getChatId(), fileFields, caption, AnimalType.CAT);
+        Report result = out.createReportFromMessage(testPerson.getChatId(), fotoObjDto, caption, AnimalType.CAT);
 
         assertThat(result).isNotNull()
                 .isInstanceOf(Report.class)

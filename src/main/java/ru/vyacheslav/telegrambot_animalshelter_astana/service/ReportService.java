@@ -1,22 +1,13 @@
 package ru.vyacheslav.telegrambot_animalshelter_astana.service;
 
-import com.pengrad.telegrambot.model.PhotoSize;
-import com.pengrad.telegrambot.request.GetFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.NoAnimalAdoptedException;
-import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.ReportNotFoundException;
-import ru.vyacheslav.telegrambot_animalshelter_astana.model.Person;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Report;
-import ru.vyacheslav.telegrambot_animalshelter_astana.repository.PersonRepository;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.ReportRepository;
 
-import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class ReportService {

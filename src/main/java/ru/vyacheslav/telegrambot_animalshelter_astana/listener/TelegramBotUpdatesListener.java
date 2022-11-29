@@ -13,6 +13,7 @@ import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import ru.vyacheslav.telegrambot_animalshelter_astana.dto.FotoObjectDto;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.NoAnimalAdoptedException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonAlreadyExistsException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
@@ -69,8 +70,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 try {
                     checkIfReportMessageEligible(message.photo(), message.caption());
 
-                    Map<String, Object> fileMap = extractPhotoData(message.photo());
-                    telegramBotUpdatesService.createReportFromMessage(chatId, fileMap, message.caption(), animalType);
+                    FotoObjectDto fotoObjDto = extractPhotoData(message.photo());
+                    telegramBotUpdatesService.createReportFromMessage(chatId, fotoObjDto, message.caption(), animalType);
 
                     sendMessage(chatId, "Отчет сохранен");
                     sendMessage(chatId, "/start");
@@ -323,7 +324,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * @return {@link Map} with various data extracted from photo file
      * @throws IOException
      */
-    private Map<String, Object> extractPhotoData(PhotoSize[] photoSizes) throws IOException {
+    private FotoObjectDto extractPhotoData(PhotoSize[] photoSizes) throws IOException {
 
         PhotoSize photoObject = photoSizes[1];
 
@@ -333,13 +334,13 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         byte[] fileData = telegramBot.getFileContent(file);
 
         // Form map to transfer to ReportService.createReportFromMessage method
-        Map<String, Object> fileFields = new HashMap<>();
-        fileFields.put("mediaType", fileRequest.getContentType());
-        fileFields.put("photoData", fileData);
-        fileFields.put("photoSize", file.fileSize());
-        fileFields.put("photoPath", file.filePath());
+        FotoObjectDto fotoObjectDto = new FotoObjectDto();
+        fotoObjectDto.setPhotoData(fileData);
+        fotoObjectDto.setPhotoPath(file.filePath());
+        fotoObjectDto.setPhotoSize(file.fileSize());
+        fotoObjectDto.setMediaType(fileRequest.getContentType());
 
-        return fileFields;
+        return fotoObjectDto;
     }
 
     //@Scheduled(cron = "0 0 * * *") //здесь должен быть метод для напоминания пользователю предоставить отчет

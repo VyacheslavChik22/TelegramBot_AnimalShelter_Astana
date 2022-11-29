@@ -3,6 +3,7 @@ package ru.vyacheslav.telegrambot_animalshelter_astana.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import ru.vyacheslav.telegrambot_animalshelter_astana.dto.FotoObjectDto;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.NoAnimalAdoptedException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonAlreadyExistsException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
@@ -15,7 +16,6 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.model.Report;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -75,24 +75,24 @@ public class TelegramBotUpdatesService {
      * Creates report entity with text and photo file data, and saves it in DB
      *
      * @param chatId chat identification number from the telegram {@link com.pengrad.telegrambot.model.Message} object
-     * @param fileMap map which contains key-value pairs with photo file data
+     * @param fotoObjectDto map which contains key-value pairs with photo file data
      * @param caption text from the telegram message with photo file
      * @return report entity
      * @throws PersonNotFoundException when there is no person with such chatId in DB
      * @throws NoAnimalAdoptedException if person doesn't have adopted animal
      * @throws RuntimeException with specific message when person has already sent report today
      */
-    public Report createReportFromMessage(Long chatId, Map<String, Object> fileMap, String caption, AnimalType animalType) {
+    public Report createReportFromMessage(Long chatId, FotoObjectDto fotoObjectDto, String caption, AnimalType animalType) {
         logger.info("Request method createReportFromMessage");
         if (animalType == AnimalType.DOG) {
-            return createDogReport(chatId, fileMap, caption);
+            return createDogReport(chatId, fotoObjectDto, caption);
         } else {
-            return createCatReport(chatId, fileMap, caption);
+            return createCatReport(chatId, fotoObjectDto, caption);
         }
 
     }
 
-    private Report createDogReport(Long chatId, Map<String, Object> fileMap, String caption) {
+    private Report createDogReport(Long chatId, FotoObjectDto fotoObjDto, String caption) {
         // Проверить существует ли пользователь в нашей БД по chatId - если нет, то бросить ошибку
         Person person = personService.findPersonByChatId(chatId).orElseThrow(PersonNotFoundException::new);
 
@@ -109,10 +109,10 @@ public class TelegramBotUpdatesService {
         report.setReportDate(LocalDate.now());
         report.setDescription(caption);
         report.setPerson(person);
-        report.setMediaType((String) fileMap.get("mediaType"));
-        report.setPhotoData((byte[]) fileMap.get("photoData"));
-        report.setPhotoSize((Integer) fileMap.get("photoSize"));
-        report.setPhotoPath((String) fileMap.get("photoPath"));
+        report.setMediaType(fotoObjDto.getMediaType());
+        report.setPhotoData(fotoObjDto.getPhotoData());
+        report.setPhotoSize(fotoObjDto.getPhotoSize());
+        report.setPhotoPath(fotoObjDto.getPhotoPath());
 
         person.setLastReportDate(report.getReportDate());
 
@@ -121,7 +121,7 @@ public class TelegramBotUpdatesService {
         return reportService.addReport(report);
     }
 
-    private Report createCatReport(Long chatId, Map<String, Object> fileMap, String caption) {
+    private Report createCatReport(Long chatId, FotoObjectDto fotoObjDto, String caption) {
         // Проверить существует ли пользователь в нашей БД по chatId - если нет, то бросить ошибку
         PersonCat person = personCatService.findPersonByChatId(chatId).orElseThrow(PersonNotFoundException::new);
 
@@ -138,10 +138,10 @@ public class TelegramBotUpdatesService {
         report.setReportDate(LocalDate.now());
         report.setDescription(caption);
         report.setPersonCat(person);
-        report.setMediaType((String) fileMap.get("mediaType"));
-        report.setPhotoData((byte[]) fileMap.get("photoData"));
-        report.setPhotoSize((Integer) fileMap.get("photoSize"));
-        report.setPhotoPath((String) fileMap.get("photoPath"));
+        report.setMediaType(fotoObjDto.getMediaType());
+        report.setPhotoData(fotoObjDto.getPhotoData());
+        report.setPhotoSize(fotoObjDto.getPhotoSize());
+        report.setPhotoPath(fotoObjDto.getPhotoPath());
 
         person.setLastReportDate(report.getReportDate());
 

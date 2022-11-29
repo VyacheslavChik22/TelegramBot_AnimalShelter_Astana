@@ -37,7 +37,7 @@ public class TelegramBotConstants {
             "\n" + START_MENU_DOG + " - приют для собак" +
             "\n" + START_MENU_CAT + " - приют для кошек";
 
-    public static final String REPORT_FORM = "Пришлите отчет по заданной форме:\n" +
+    public static final String REPORT_FORM = "Для отправки отчета сделай reply на это сообщение:\n" +
             "\n* Фото питомца.\n" +
             "* Рацион питомца.\n" +
             "* Общее самочувствие и привыкание к новому месту.\n" +
@@ -65,7 +65,7 @@ public class TelegramBotConstants {
                     "\n" + START;
 
 
-    public static final String CONTACT_TEXT = "\"Пришлите ваши контакты по заданной форме:\n" +
+    public static final String CONTACT_TEXT = "\"Для отправки данных сделай reply на это сообщение:\n" +
             "Имя: Ваше имя;\n" +
             "Телефон: +70001234567;\n" +
             "Email: email@email.com;\n" +

@@ -17,6 +17,7 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.NoAnimalAdopted
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonAlreadyExistsException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextDoesNotMatchPatternException;
+import ru.vyacheslav.telegrambot_animalshelter_astana.model.AnimalType;
 import ru.vyacheslav.telegrambot_animalshelter_astana.service.TelegramBotUpdatesService;
 
 import javax.annotation.PostConstruct;
@@ -29,6 +30,7 @@ import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramB
 
 @Service
 public class TelegramBotUpdatesListener implements UpdatesListener {
+    private AnimalType animalType;
 
     private final TelegramBotUpdatesService telegramBotUpdatesService;
 
@@ -63,12 +65,12 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
             // Если пользователь отвечает на сообщение о подаче репорта
             // можно проверять ключевое слово из сообщения бота (напрмер фото) вместо команды
-            if (message.replyToMessage() != null && message.replyToMessage().text().equals(REPORT_FORM)) {
+            if (message.replyToMessage() != null && REPORT_FORM.equals(message.replyToMessage().text())) {
                 try {
                     checkIfReportMessageEligible(message.photo(), message.caption());
 
                     Map<String, Object> fileMap = extractPhotoData(message.photo());
-                    telegramBotUpdatesService.createReportFromMessage(chatId, fileMap, message.caption());
+                    telegramBotUpdatesService.createReportFromMessage(chatId, fileMap, message.caption(), animalType);
 
                     sendMessage(chatId, "Отчет сохранен");
                     sendMessage(chatId, "/start");
@@ -83,9 +85,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
             // Если пользователь отвечает на сообщение о своих контактных данных
             // можно проверять ключевое слово из сообщения бота (напрмер почта) вместо команды
-            if (message.replyToMessage() != null && message.replyToMessage().text().equals(CONTACT_TEXT)) {
+            if (message.replyToMessage() != null && CONTACT_TEXT.equals(message.replyToMessage().text())) {
                 try {
-                    telegramBotUpdatesService.createPersonFromMessage(chatId, message.text());
+                    telegramBotUpdatesService.createPersonFromMessage(chatId, message.text(), animalType);
                     sendMessage(chatId, "Контактные данные сохранены");
                     sendMessage(chatId, "/start");
                     return;
@@ -105,10 +107,12 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
                 case "/menu_Dog":
                     logger.info("Bot start message was received: {}", message.text());
+                    animalType = AnimalType.DOG;
                     sendMessage(chatId, LIST_MENU_DOG);
                     break;
                 case "/menu_Cat":
                     logger.info("Bot start message was received: {}", message.text());
+                    animalType = AnimalType.CAT;
                     sendMessage(chatId, LIST_MENU_CAT);
                     break;
 
@@ -132,11 +136,15 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     break;
 
                 case "/report":
+                    if (animalType == null) {
+                        sendMessage(chatId, "Пожалуйста, перед тем как отправить отчет, выберите /menu_Dog или /menu_Cat");
+                        return;
+                    }
                     logger.info("Bot start message was received: {}", message.text());
                     // Получаем дни с момента получения животного
                     Long daysFromAdoption;
                     try {
-                        daysFromAdoption = telegramBotUpdatesService.countDaysFromAdoption(chatId);
+                        daysFromAdoption = telegramBotUpdatesService.countDaysFromAdoption(chatId, animalType);
                     } catch (PersonNotFoundException | NoAnimalAdoptedException e) {
                         sendMessage(chatId, e.getMessage());
                         return;

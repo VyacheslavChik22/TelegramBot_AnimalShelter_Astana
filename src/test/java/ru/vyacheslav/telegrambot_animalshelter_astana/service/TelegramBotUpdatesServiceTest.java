@@ -9,10 +9,7 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.NoAnimalAdopted
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonAlreadyExistsException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextDoesNotMatchPatternException;
-import ru.vyacheslav.telegrambot_animalshelter_astana.model.Animal;
-import ru.vyacheslav.telegrambot_animalshelter_astana.model.AnimalType;
-import ru.vyacheslav.telegrambot_animalshelter_astana.model.Person;
-import ru.vyacheslav.telegrambot_animalshelter_astana.model.Report;
+import ru.vyacheslav.telegrambot_animalshelter_astana.model.*;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -38,6 +35,8 @@ public class TelegramBotUpdatesServiceTest {
     @Mock
     private PersonService personService;
     @Mock
+    private PersonCatService personCatService;
+    @Mock
     private ReportService reportService;
 
     @InjectMocks
@@ -60,16 +59,17 @@ public class TelegramBotUpdatesServiceTest {
         when(personService.findPersonByChatId(anyLong())).thenReturn(Optional.empty());
         when(personService.createPerson(any(Person.class))).thenReturn(testPerson);
 
-        Person result = out.createPersonFromMessage(1L, testMessage);
+        out.createPersonFromMessage(1L, testMessage, AnimalType.DOG);
 
-        assertThat(result).isEqualTo(testPerson);
+        verify(personService, atLeastOnce()).createPerson(any(Person.class));
+        verify(personCatService, never()).createPerson(any(PersonCat.class));
     }
 
     @Test
     void shouldThrowPersonAlreadyExistsException_whenCreateNewPersonFromContactData() {
         when(personService.findPersonByChatId(anyLong())).thenReturn(Optional.of(getTestPerson(1L, "Test")));
 
-        assertThatThrownBy(() -> out.createPersonFromMessage(anyLong(), "anyString()")).isInstanceOf(PersonAlreadyExistsException.class);
+        assertThatThrownBy(() -> out.createPersonFromMessage(anyLong(), "anyString()", AnimalType.DOG)).isInstanceOf(PersonAlreadyExistsException.class);
         verify(personService, never()).createPerson(any(Person.class));
     }
 
@@ -81,7 +81,7 @@ public class TelegramBotUpdatesServiceTest {
 
         when(personService.findPersonByChatId(anyLong())).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> out.createPersonFromMessage(anyLong(), testMessage)).isInstanceOf(TextDoesNotMatchPatternException.class);
+        assertThatThrownBy(() -> out.createPersonFromMessage(anyLong(), testMessage, AnimalType.DOG)).isInstanceOf(TextDoesNotMatchPatternException.class);
         verify(personService, never()).createPerson(any(Person.class));
     }
 
@@ -91,14 +91,14 @@ public class TelegramBotUpdatesServiceTest {
 
         when(personService.findPersonByChatId(anyLong())).thenReturn(Optional.of(testPerson));
 
-        assertThatThrownBy(() -> out.countDaysFromAdoption(anyLong())).isInstanceOf(NoAnimalAdoptedException.class);
+        assertThatThrownBy(() -> out.countDaysFromAdoption(anyLong(), AnimalType.DOG)).isInstanceOf(NoAnimalAdoptedException.class);
     }
 
     @Test
     void shouldThrowPersonNotFoundException_whenCreateNewReportForUserNotInDB() {
         when(personService.findPersonByChatId(anyLong())).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> out.createReportFromMessage(anyLong(), null, null)).isInstanceOf(PersonNotFoundException.class);
+        assertThatThrownBy(() -> out.createReportFromMessage(anyLong(), null, null, AnimalType.DOG)).isInstanceOf(PersonNotFoundException.class);
         verify(personService, never()).updatePerson(any(Person.class));
         verify(reportService, never()).addReport(any(Report.class));
     }
@@ -111,7 +111,7 @@ public class TelegramBotUpdatesServiceTest {
 
         when(personService.findPersonByChatId(anyLong())).thenReturn(Optional.of(testPerson));
 
-        assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), new HashMap<>(), "null"))
+        assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), new HashMap<>(), "null", AnimalType.DOG))
                 .isInstanceOf(NoAnimalAdoptedException.class);
 
         verify(personService, never()).updatePerson(any(Person.class));
@@ -123,12 +123,12 @@ public class TelegramBotUpdatesServiceTest {
         Person testPerson = new Person();
         testPerson.setId(1L);
         testPerson.setChatId(1L);
-        testPerson.setAnimal(new Animal(1L, "Test cat", AnimalType.CAT));
+        testPerson.setAnimal(new Animal(1L, "Test cat", AnimalType.DOG));
         testPerson.setLastReportDate(LocalDate.now());
 
         when(personService.findPersonByChatId(anyLong())).thenReturn(Optional.of(testPerson));
 
-        assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), new HashMap<>(), "null"))
+        assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), new HashMap<>(), "null", AnimalType.DOG))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("Report has sent");
 
@@ -141,7 +141,7 @@ public class TelegramBotUpdatesServiceTest {
         Person testPerson = new Person();
         testPerson.setId(1L);
         testPerson.setChatId(1L);
-        testPerson.setAnimal(new Animal(1L, "Test cat", AnimalType.CAT));
+        testPerson.setAnimal(new Animal(1L, "Test cat", AnimalType.DOG));
 
         String caption = "text";
 
@@ -162,7 +162,7 @@ public class TelegramBotUpdatesServiceTest {
         when(personService.findPersonByChatId(anyLong())).thenReturn(Optional.of(testPerson));
         when(reportService.addReport(any(Report.class))).thenReturn(testReport);
 
-        Report result = out.createReportFromMessage(testPerson.getChatId(), fileFields, caption);
+        Report result = out.createReportFromMessage(testPerson.getChatId(), fileFields, caption, AnimalType.DOG);
 
         assertThat(result).isNotNull()
                 .isInstanceOf(Report.class)

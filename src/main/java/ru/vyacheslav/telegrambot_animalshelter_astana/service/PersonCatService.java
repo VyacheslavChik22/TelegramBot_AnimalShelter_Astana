@@ -4,35 +4,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
-import ru.vyacheslav.telegrambot_animalshelter_astana.model.Person;
-import ru.vyacheslav.telegrambot_animalshelter_astana.repository.PersonRepository;
+import ru.vyacheslav.telegrambot_animalshelter_astana.model.PersonCat;
+import ru.vyacheslav.telegrambot_animalshelter_astana.repository.PersonCatRepository;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 
-/**
- * @author Oleg Alekseenko
- */
 @Service
-public class PersonService {
+public class PersonCatService {
+
     private final Logger logger = LoggerFactory.getLogger(PersonService.class);
 
-    private final PersonRepository personRepository;
+    private final PersonCatRepository personCatRepository;
 
-    public PersonService(PersonRepository personRepository) {
-        this.personRepository = personRepository;
+    public PersonCatService(PersonCatRepository personCatRepository) {
+        this.personCatRepository = personCatRepository;
     }
-
 
     /**
      * Finds all entries in DB.
      *
      * @return unmodifiable collection
      */
-    public Collection<Person> findAll() {
+    public Collection<PersonCat> findAll() {
         logger.info("Was invoked method to get all people");
-        return Collections.unmodifiableCollection(personRepository.findAll());
+        return Collections.unmodifiableCollection(personCatRepository.findAll());
     }
 
     /**
@@ -42,23 +39,23 @@ public class PersonService {
      * @return person model
      * @throws PersonNotFoundException if no entry was found in DB
      */
-    public Person findPerson(long id) {
+    public PersonCat findPerson(long id) {
         logger.info("Was invoked method for find person by id: {}", id);
-        return personRepository.findById(id).orElseThrow(PersonNotFoundException::new);
+        return personCatRepository.findById(id).orElseThrow(PersonNotFoundException::new);
     }
 
-    public Person createPerson(Person person) {
+    public PersonCat createPerson(PersonCat personCat) {
         logger.info("Was invoked method for create person");
-        return personRepository.save(person);
+        return personCatRepository.save(personCat);
     }
 
-    public Person updatePerson(Person person) {
+    public PersonCat updatePerson(PersonCat personCat) {
         logger.info("Was invoked method for update person");
-        if (person.getId() == null || !personRepository.existsById(person.getId())) {
-            logger.warn("Person with id: '{}' not found and could not be updated.", person.getId());
+        if (personCat.getId() == null || !personCatRepository.existsById(personCat.getId())) {
+            logger.warn("Person with id: '{}' not found and could not be updated.", personCat.getId());
             throw new PersonNotFoundException();
         }
-        return personRepository.save(person);
+        return personCatRepository.save(personCat);
     }
 
     /**
@@ -69,8 +66,8 @@ public class PersonService {
      */
     public void deletePerson(long id) {
         logger.info("Was invoked method for delete person by id: {}", id);
-        Person person = findPerson(id);
-        personRepository.delete(person);
+        PersonCat personCat = findPerson(id);
+        personCatRepository.delete(personCat);
     }
 
     /**
@@ -79,7 +76,7 @@ public class PersonService {
      * @param chatId telegram chat identification number
      * @return Optional of person
      */
-    public Optional<Person> findPersonByChatId(Long chatId) {
-        return personRepository.findPersonByChatId(chatId);
+    public Optional<PersonCat> findPersonByChatId(Long chatId) {
+        return personCatRepository.findPersonByChatId(chatId);
     }
 }

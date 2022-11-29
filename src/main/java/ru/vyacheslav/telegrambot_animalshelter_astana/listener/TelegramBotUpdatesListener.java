@@ -94,7 +94,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     sendMessage(chatId, "Ваши контактные данные уже сохранены");
                     return;
                 } catch (TextDoesNotMatchPatternException e) {
-                    sendMessage(chatId, "Текст не соответствует шаблону, нажмите /repeat и попробуйте еще раз");
+                    sendMessage(chatId, "Текст не соответствует шаблону, нажмите " + REPEAT + " и попробуйте еще раз");
                 }
             }
 

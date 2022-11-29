@@ -10,6 +10,7 @@ public class TelegramBotConstants {
     public static final String REPORT = "/report";
     public static final String CALL = "/call";
     public static final String CONTACT = "/contact";
+    public static final String REPEAT = "/repeat";
     //*************************************--COMMAND2--************************
     //for dogs
     public static final String ACQUAINTANCE_DOG = "/acquaintance_Dog";

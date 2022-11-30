@@ -53,8 +53,8 @@ public class AnimalService {
     }
 
     /**
-     *List of all animals in the shelter, paginated
-     * @return List of animals by pages
+     *List of all animals in the shelter
+     * @return List of animals
      */
     public Collection<Animal> getAllAnimals() {
         logger.info("Was invoked method to get all animal");

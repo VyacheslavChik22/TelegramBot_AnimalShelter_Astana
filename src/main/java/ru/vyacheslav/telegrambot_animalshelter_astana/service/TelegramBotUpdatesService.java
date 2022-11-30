@@ -16,6 +16,9 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.model.Report;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,7 +42,7 @@ public class TelegramBotUpdatesService {
 
     /** Creates personDog or personCat entity from the text message and saves it in DB
      *
-     * @param chatId chat identification number from the telegram {@link com.pengrad.telegrambot.model.Message} object
+     * @param chatId      chat identification number from the telegram {@link com.pengrad.telegrambot.model.Message} object
      * @param messageText text from the telegram {@link com.pengrad.telegrambot.model.Message} object
      * @param animalType type of animal from enum {@link AnimalType}
      * @throws PersonAlreadyExistsException if DB contains entry with such chatId
@@ -57,9 +60,10 @@ public class TelegramBotUpdatesService {
 
     /**
      * Counts number of days from pet adoption until now for person with chatId
+     *
      * @param chatId chat identification number from the telegram {@link com.pengrad.telegrambot.model.Message} object
      * @return number of days
-     * @throws PersonNotFoundException when there is no person with such chatId in DB
+     * @throws PersonNotFoundException  when there is no person with such chatId in DB
      * @throws NoAnimalAdoptedException if person doesn't have adopted animal
      */
     public Long countDaysFromAdoption(Long chatId, AnimalType animalType) {
@@ -74,13 +78,14 @@ public class TelegramBotUpdatesService {
     /**
      * Creates report entity with text and photo file data, and saves it in DB
      *
+
      * @param chatId chat identification number from the telegram {@link com.pengrad.telegrambot.model.Message} object
      * @param fotoObjectDto map which contains key-value pairs with photo file data
      * @param caption text from the telegram message with photo file
      * @return report entity
-     * @throws PersonNotFoundException when there is no person with such chatId in DB
+     * @throws PersonNotFoundException  when there is no person with such chatId in DB
      * @throws NoAnimalAdoptedException if person doesn't have adopted animal
-     * @throws RuntimeException with specific message when person has already sent report today
+     * @throws RuntimeException         with specific message when person has already sent report today
      */
     public Report createReportFromMessage(Long chatId, FotoObjectDto fotoObjectDto, String caption, AnimalType animalType) {
         logger.info("Request method createReportFromMessage");
@@ -173,6 +178,7 @@ public class TelegramBotUpdatesService {
         }
     }
 
+
     private void createPersonCatFromMessage(Long chatId, String messageText) {
         if (personCatService.findPersonByChatId(chatId).isPresent()) {
             logger.info("Person with {} is already saved in DB", chatId);
@@ -225,5 +231,11 @@ public class TelegramBotUpdatesService {
         }
 
         return ChronoUnit.DAYS.between(personCat.getAnimalAdoptDate(), LocalDate.now());
+
+    public List<Person> findPeopleToRemind() {
+        LocalDate date = LocalDate.now();
+        List<Person> peopleNoReports = personService.findAllByLastReportDateBefore(date);
+       return peopleNoReports;
+
     }
 }

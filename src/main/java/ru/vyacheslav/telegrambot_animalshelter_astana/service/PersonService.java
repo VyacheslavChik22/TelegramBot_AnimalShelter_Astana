@@ -7,8 +7,10 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundE
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Person;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.PersonRepository;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -59,6 +61,10 @@ public class PersonService {
             throw new PersonNotFoundException();
         }
         return personRepository.save(person);
+    }
+
+    public List<Person> findAllByLastReportDateBefore(LocalDate date) {
+        return personRepository.findAllByLastReportDateBefore(date);
     }
 
     /**

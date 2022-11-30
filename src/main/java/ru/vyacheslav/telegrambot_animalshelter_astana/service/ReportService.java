@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.ReportNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Report;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.ReportRepository;
-
 import java.util.List;
 
 @Service
@@ -41,6 +40,8 @@ public class ReportService {
         logger.debug("Request method findAllReports:");
         return reportRepository.findAll();
     }
+
+
 
     /**
      * Editing and saving report

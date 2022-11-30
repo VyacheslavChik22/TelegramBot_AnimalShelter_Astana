@@ -231,6 +231,7 @@ public class TelegramBotUpdatesService {
         }
 
         return ChronoUnit.DAYS.between(personCat.getAnimalAdoptDate(), LocalDate.now());
+    }
 
     public List<Person> findPeopleToRemind() {
         LocalDate date = LocalDate.now();

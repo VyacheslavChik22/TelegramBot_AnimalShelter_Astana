@@ -24,6 +24,7 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextDoesNotMatc
 
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.AnimalType;
 
+import ru.vyacheslav.telegrambot_animalshelter_astana.model.Person;
 import ru.vyacheslav.telegrambot_animalshelter_astana.service.TelegramBotUpdatesService;
 
 import javax.annotation.PostConstruct;

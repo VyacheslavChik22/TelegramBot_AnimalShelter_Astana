@@ -13,7 +13,9 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.model.Report;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.PersonRepository;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.ReportRepository;
 
+import java.sql.Time;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +52,8 @@ public class ReportService {
         logger.debug("Request method findAllReports:");
         return reportRepository.findAll();
     }
+
+
 
     /**
      * Editing and saving report

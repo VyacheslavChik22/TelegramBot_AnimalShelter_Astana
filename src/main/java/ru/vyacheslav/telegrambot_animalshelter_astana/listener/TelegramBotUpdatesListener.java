@@ -12,12 +12,14 @@ import com.pengrad.telegrambot.response.GetFileResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.NoAnimalAdoptedException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonAlreadyExistsException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextDoesNotMatchPatternException;
+import ru.vyacheslav.telegrambot_animalshelter_astana.model.Person;
 import ru.vyacheslav.telegrambot_animalshelter_astana.service.TelegramBotUpdatesService;
 
 import javax.annotation.PostConstruct;
@@ -334,6 +336,14 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
         return fileFields;
     }
+    @Scheduled(cron = "0 0 * * *")
+    public void RemindAboutReports(){
+     List<Person> personList =  telegramBotUpdatesService.findPeopleToRemind();
+        if(personList.size() > 0){
+            personList.forEach(p -> sendMessage(p.getChatId(),  "До сдачи отчета осталось немного времени!"));
+        }
+    }
+
 
     //@Scheduled(cron = "0 0 * * *") //здесь должен быть метод для напоминания пользователю предоставить отчет
 

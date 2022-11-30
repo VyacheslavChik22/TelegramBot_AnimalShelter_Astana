@@ -12,11 +12,14 @@ import com.pengrad.telegrambot.response.GetFileResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.NoAnimalAdoptedException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonAlreadyExistsException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextDoesNotMatchPatternException;
+import ru.vyacheslav.telegrambot_animalshelter_astana.model.Person;
 import ru.vyacheslav.telegrambot_animalshelter_astana.service.TelegramBotUpdatesService;
 
 import javax.annotation.PostConstruct;
@@ -71,7 +74,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     telegramBotUpdatesService.createReportFromMessage(chatId, fileMap, message.caption());
 
                     sendMessage(chatId, "Отчет сохранен");
-                    sendMessage(chatId, "/start");
+                    sendMessage(chatId, "\n" + START);
                     return;
                 } catch (IOException e) {
                     throw new RuntimeException("Проблема с сохранением фото");
@@ -87,13 +90,13 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 try {
                     telegramBotUpdatesService.createPersonFromMessage(chatId, message.text());
                     sendMessage(chatId, "Контактные данные сохранены");
-                    sendMessage(chatId, "/start");
+                    sendMessage(chatId, "\n" + START);
                     return;
                 } catch (PersonAlreadyExistsException e) {
                     sendMessage(chatId, "Ваши контактные данные уже сохранены");
                     return;
                 } catch (TextDoesNotMatchPatternException e) {
-                    sendMessage(chatId, "Текст не соответствует шаблону, нажмите /repeat и попробуйте еще раз");
+                    sendMessage(chatId, "Текст не соответствует шаблону, нажмите " + REPEAT + " и попробуйте еще раз");
                 }
             }
 
@@ -255,13 +258,13 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 case "/advices_cynologist":
                     // Send GREETINGS_MSG if START_CMD was found
                     logger.info("Bot start message was received: {}", message.text());
-                    sendMessage(chatId, ADVICES_CYNOLOGIST);
+                    sendMessage(chatId, ADVICES_TEXT_CYNOLOGIST);
                     break;
 
                 case "/tested_cynologists":
                     // Send GREETINGS_MSG if START_CMD was found
                     logger.info("Bot start message was received: {}", message.text());
-                    sendMessage(chatId, TESTED_CYNOLOGIST);
+                    sendMessage(chatId, TESTED_TEXT_CYNOLOGIST);
                     break;
 
                 default:
@@ -333,6 +336,14 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
         return fileFields;
     }
+    @Scheduled(cron = "0 0 * * *")
+    public void RemindAboutReports(){
+     List<Person> personList =  telegramBotUpdatesService.findPeopleToRemind();
+        if(personList.size() > 0){
+            personList.forEach(p -> sendMessage(p.getChatId(),  "До сдачи отчета осталось немного времени!"));
+        }
+    }
+
 
     //@Scheduled(cron = "0 0 * * *") //здесь должен быть метод для напоминания пользователю предоставить отчет
 

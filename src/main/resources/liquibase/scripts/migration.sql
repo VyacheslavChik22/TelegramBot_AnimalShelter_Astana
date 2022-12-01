@@ -51,4 +51,8 @@ CREATE TABLE volunteer (
                         "name" varchar (50) not null,
                         email varchar(50) not null,
                         phone varchar(20) not null
-)
+);
+
+-- changeset oalekseenko:2
+create index person_dog_last_report_date_idx on person_dog(last_report_date);
+create index person_cat_last_report_date_idx on person_cat(last_report_date);

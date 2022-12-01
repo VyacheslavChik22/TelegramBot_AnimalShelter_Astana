@@ -65,7 +65,7 @@ public class PersonDogService {
 
     public List<PersonDog> findAllByLastReportDateBefore(LocalDate date) {
         logger.info("Was invoked method to find all dog people with last report date before {}", date);
-        return personDogRepository.findAllByLastReportDateBeforeAndAnimalIsNotNull(date);
+        return personDogRepository.findAllByLastReportDateBeforeOrLastReportDateIsNullAndAnimalIsNotNull(date);
     }
 
     /**

@@ -126,7 +126,7 @@ public class PersonDogServiceTest {
     @Test
     void shouldReturnAnEmptyList_whenNoPeopleFoundByLastReportDateBefore() {
         LocalDate testDate = LocalDate.now();
-        when(personDogRepository.findAllByLastReportDateBeforeAndAnimalIsNotNull(testDate)).thenReturn(Collections.emptyList());
+        when(personDogRepository.findAllByLastReportDateBeforeOrLastReportDateIsNullAndAnimalIsNotNull(testDate)).thenReturn(Collections.emptyList());
 
         List<PersonDog> result = out.findAllByLastReportDateBefore(testDate);
 
@@ -138,7 +138,7 @@ public class PersonDogServiceTest {
         LocalDate testDate = LocalDate.now();
         PersonDog testPerson = getTestPerson(1L, "Test");
 
-        when(personDogRepository.findAllByLastReportDateBeforeAndAnimalIsNotNull(testDate)).thenReturn(List.of(testPerson));
+        when(personDogRepository.findAllByLastReportDateBeforeOrLastReportDateIsNullAndAnimalIsNotNull(testDate)).thenReturn(List.of(testPerson));
 
         List<PersonDog> result = out.findAllByLastReportDateBefore(testDate);
 

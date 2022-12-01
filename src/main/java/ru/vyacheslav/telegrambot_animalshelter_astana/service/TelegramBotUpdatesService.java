@@ -10,17 +10,16 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonAlreadyEx
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextDoesNotMatchPatternException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.AnimalType;
-import ru.vyacheslav.telegrambot_animalshelter_astana.model.Person;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.PersonCat;
+import ru.vyacheslav.telegrambot_animalshelter_astana.model.PersonDog;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Report;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramBotConstants.CONTACT_DATA_PATTERN;
 
@@ -30,12 +29,12 @@ public class TelegramBotUpdatesService {
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesService.class);
     private final Pattern pattern = Pattern.compile(CONTACT_DATA_PATTERN);
 
-    private final PersonService personService;
+    private final PersonDogService personDogService;
     private final PersonCatService personCatService;
     private final ReportService reportService;
 
-    public TelegramBotUpdatesService(PersonService personService, PersonCatService personCatService, ReportService reportService) {
-        this.personService = personService;
+    public TelegramBotUpdatesService(PersonDogService personDogService, PersonCatService personCatService, ReportService reportService) {
+        this.personDogService = personDogService;
         this.personCatService = personCatService;
         this.reportService = reportService;
     }
@@ -99,7 +98,7 @@ public class TelegramBotUpdatesService {
 
     private Report createDogReport(Long chatId, FotoObjectDto fotoObjDto, String caption) {
         // Проверить существует ли пользователь в нашей БД по chatId - если нет, то бросить ошибку
-        Person person = personService.findPersonByChatId(chatId).orElseThrow(PersonNotFoundException::new);
+        PersonDog person = personDogService.findPersonByChatId(chatId).orElseThrow(PersonNotFoundException::new);
 
         // Проверить что у пользователя есть животное
         if (person.getAnimal() == null) {
@@ -111,11 +110,11 @@ public class TelegramBotUpdatesService {
         }
 
         Report report = getNewReport(fotoObjDto, caption);
-        report.setPerson(person);
+        report.setPersonDog(person);
 
         person.setLastReportDate(report.getReportDate());
 
-        personService.updatePerson(person);
+        personDogService.updatePerson(person);
 
         return reportService.addReport(report);
     }
@@ -197,24 +196,24 @@ public class TelegramBotUpdatesService {
     }
 
     private void createPersonDogFromMessage(Long chatId, String messageText) {
-        if (personService.findPersonByChatId(chatId).isPresent()) {
+        if (personDogService.findPersonByChatId(chatId).isPresent()) {
             logger.info("Person with {} is already saved in DB", chatId);
             throw new PersonAlreadyExistsException();
         }
         // Parse message text in accordance with the pattern
         ContactDataDto contact_data = parseText(messageText);
         // Create new person entity and set necessary values
-        Person person = new Person();
+        PersonDog person = new PersonDog();
         person.setName(contact_data.getName());
         person.setPhone(contact_data.getPhone());
         person.setEmail(contact_data.getEmail());
         person.setAddress(contact_data.getAddress());
         person.setChatId(chatId);
-        personService.createPerson(person);
+        personDogService.createPerson(person);
     }
 
     private Long countDaysFromAdoptionDog(Long chatId) {
-        Person person = personService.findPersonByChatId(chatId).orElseThrow(PersonNotFoundException::new);
+        PersonDog person = personDogService.findPersonByChatId(chatId).orElseThrow(PersonNotFoundException::new);
 
         if (person.getAnimal() == null) {
             throw new NoAnimalAdoptedException();
@@ -233,10 +232,16 @@ public class TelegramBotUpdatesService {
         return ChronoUnit.DAYS.between(personCat.getAnimalAdoptDate(), LocalDate.now());
     }
 
-    public List<Person> findPeopleToRemind() {
+    public List<Long> findPeopleToRemind() {
         LocalDate date = LocalDate.now();
-        List<Person> peopleNoReports = personService.findAllByLastReportDateBefore(date);
-       return peopleNoReports;
+        List<PersonDog> dogPeopleNoReports = personDogService.findAllByLastReportDateBefore(date);
+        logger.info("{} people with dogs were found with last report date before {}", dogPeopleNoReports.size(), date);
+        List<PersonCat> catPeopleNoReports = personCatService.findAllByLastReportDateBefore(date);
+        logger.info("{} people with cats were found with last report date before {}", catPeopleNoReports.size(), date);
+        List<Long> peopleWithoutReports = dogPeopleNoReports.stream().map(PersonDog::getChatId).collect(Collectors.toList());
+        peopleWithoutReports.addAll(catPeopleNoReports.stream().map(PersonCat::getChatId).collect(Collectors.toList()));
+        logger.info("Total number of people to remind about report: {}", peopleWithoutReports.size());
 
+       return peopleWithoutReports;
     }
 }

@@ -14,22 +14,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
 import ru.vyacheslav.telegrambot_animalshelter_astana.dto.FotoObjectDto;
-
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.NoAnimalAdoptedException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonAlreadyExistsException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextDoesNotMatchPatternException;
-
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.AnimalType;
-
-import ru.vyacheslav.telegrambot_animalshelter_astana.model.Person;
 import ru.vyacheslav.telegrambot_animalshelter_astana.service.TelegramBotUpdatesService;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -348,15 +342,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
         return fotoObjectDto;
     }
-    @Scheduled(cron = "0 0 * * *")
+    @Scheduled(cron = "0 0 22 * * *")
     public void RemindAboutReports(){
-     List<Person> personList =  telegramBotUpdatesService.findPeopleToRemind();
-        if(personList.size() > 0){
-            personList.forEach(p -> sendMessage(p.getChatId(),  "До сдачи отчета осталось немного времени!"));
+     List<Long> peopleToRemind =  telegramBotUpdatesService.findPeopleToRemind();
+        if(peopleToRemind.size() > 0){
+            peopleToRemind.forEach(p -> sendMessage(p,  "До сдачи отчета осталось немного времени!"));
         }
     }
-
-
-    //@Scheduled(cron = "0 0 * * *") //здесь должен быть метод для напоминания пользователю предоставить отчет
-
 }

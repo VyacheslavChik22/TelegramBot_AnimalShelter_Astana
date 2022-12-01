@@ -7,7 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.ReportNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Report;
-import ru.vyacheslav.telegrambot_animalshelter_astana.repository.PersonRepository;
+import ru.vyacheslav.telegrambot_animalshelter_astana.repository.PersonDogRepository;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.ReportRepository;
 
 import java.util.Collection;
@@ -26,7 +26,7 @@ public class ReportServiceTest {
     @Mock
     ReportRepository reportRepository;
     @Mock
-    PersonRepository personRepository;
+    PersonDogRepository personRepository;
 
     @InjectMocks
     private ReportService out;

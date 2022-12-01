@@ -11,7 +11,7 @@ import java.util.Objects;
  *
  */
 @Entity
-@Table(name = "Report")
+//@Table(name = "Report")
 public class Report {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,19 +30,19 @@ public class Report {
     }
 
     @ManyToOne
-    @JoinColumn(name = "person_id")
-    private Person person;
+    @JoinColumn(name = "person_dog_id")
+    private PersonDog personDog;
 
     @ManyToOne
     @JoinColumn(name = "person_cat_id")
     private PersonCat personCat;
 
-    public Person getPerson() {
-        return person;
+    public PersonDog getPersonDog() {
+        return personDog;
     }
 
-    public void setPerson(Person person) {
-        this.person = person;
+    public void setPersonDog(PersonDog person) {
+        this.personDog = person;
     }
 
     public PersonCat getPersonCat() {

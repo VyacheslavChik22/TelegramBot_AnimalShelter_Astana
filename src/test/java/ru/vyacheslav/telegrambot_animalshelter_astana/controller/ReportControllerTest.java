@@ -11,7 +11,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Report;
-import ru.vyacheslav.telegrambot_animalshelter_astana.repository.PersonRepository;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.ReportRepository;
 import ru.vyacheslav.telegrambot_animalshelter_astana.service.ReportService;
 
@@ -34,9 +33,6 @@ public class ReportControllerTest {
 
     @MockBean
     private ReportRepository reportRepository;
-
-    @MockBean
-    private PersonRepository personRepository;
 
     @SpyBean
     private ReportService reportService;

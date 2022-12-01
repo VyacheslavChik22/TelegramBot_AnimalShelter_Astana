@@ -7,8 +7,10 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundE
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.PersonCat;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.PersonCatRepository;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -78,5 +80,10 @@ public class PersonCatService {
      */
     public Optional<PersonCat> findPersonByChatId(Long chatId) {
         return personCatRepository.findPersonByChatId(chatId);
+    }
+
+    public List<PersonCat> findAllByLastReportDateBefore(LocalDate date) {
+        logger.info("Was invoked method to find all cat people with last report date before {}", date);
+        return personCatRepository.findAllByLastReportDateBeforeAndAnimalIsNotNull(date);
     }
 }

@@ -9,7 +9,9 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundE
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.PersonDog;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.PersonDogRepository;
 
+import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,7 +27,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class PersonDogServiceTest {
     @Mock
-    private PersonDogRepository personRepository;
+    private PersonDogRepository personDogRepository;
 
     @InjectMocks
     private PersonDogService out;
@@ -34,7 +36,7 @@ public class PersonDogServiceTest {
     void shouldCreateNewPerson() {
         PersonDog testPerson = getTestPerson(1, "Test 1");
 
-        when(personRepository.save(any(PersonDog.class))).thenReturn(testPerson);
+        when(personDogRepository.save(any(PersonDog.class))).thenReturn(testPerson);
         PersonDog result = out.createPerson(testPerson);
 
         assertThat(result).isEqualTo(testPerson);
@@ -43,7 +45,7 @@ public class PersonDogServiceTest {
 
     @Test
     void shouldReturnAllPeople() {
-        when(personRepository.findAll()).thenReturn(List.of(new PersonDog(), new PersonDog()));
+        when(personDogRepository.findAll()).thenReturn(List.of(new PersonDog(), new PersonDog()));
         Collection<PersonDog> result = out.findAll();
 
         assertThat(result).hasSize(2);
@@ -53,7 +55,7 @@ public class PersonDogServiceTest {
     void shouldReturnPersonById() {
         PersonDog testPerson = getTestPerson(1, "Test 1");
 
-        when(personRepository.findById(anyLong())).thenReturn(Optional.of(testPerson));
+        when(personDogRepository.findById(anyLong())).thenReturn(Optional.of(testPerson));
         PersonDog result = out.findPerson(testPerson.getId());
 
         assertThat(result).isNotNull();
@@ -62,7 +64,7 @@ public class PersonDogServiceTest {
 
     @Test
     void shouldThrowPersonNotFoundException_whenPersonByIdNotFoundInDB() {
-        when(personRepository.findById(anyLong())).thenReturn(Optional.empty());
+        when(personDogRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> out.findPerson(anyLong())).isInstanceOf(PersonNotFoundException.class);
     }
@@ -71,8 +73,8 @@ public class PersonDogServiceTest {
     void shouldUpdatePerson() {
         PersonDog testPerson = getTestPerson(1, "Test 1");
 
-        when(personRepository.existsById(testPerson.getId())).thenReturn(true);
-        when(personRepository.save(any(PersonDog.class))).thenReturn(testPerson);
+        when(personDogRepository.existsById(testPerson.getId())).thenReturn(true);
+        when(personDogRepository.save(any(PersonDog.class))).thenReturn(testPerson);
         PersonDog result = out.updatePerson(testPerson);
 
         assertThat(result).isNotNull();
@@ -83,15 +85,15 @@ public class PersonDogServiceTest {
     void shouldThrowPersonNotFoundException_whenUpdatePersonWithWrongId() {
         PersonDog testPerson = getTestPerson(1, "Test 1");
 
-        when(personRepository.existsById(testPerson.getId())).thenReturn(false);
+        when(personDogRepository.existsById(testPerson.getId())).thenReturn(false);
 
         assertThatThrownBy(() -> out.updatePerson(testPerson)).isInstanceOf(PersonNotFoundException.class);
-        verify(personRepository, never()).save(testPerson);
+        verify(personDogRepository, never()).save(testPerson);
     }
 
     @Test
     void shouldThrowPersonNotFoundException_whenDeleteByWrongId() {
-        when(personRepository.findById(anyLong())).thenReturn(Optional.empty());
+        when(personDogRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> out.deletePerson(anyLong())).isInstanceOf(PersonNotFoundException.class);
     }
@@ -102,7 +104,7 @@ public class PersonDogServiceTest {
         PersonDog testPerson = getTestPerson(1L, "Test 1");
         testPerson.setChatId(testChatId);
 
-        when(personRepository.findPersonByChatId(anyLong())).thenReturn(Optional.of(testPerson));
+        when(personDogRepository.findPersonByChatId(anyLong())).thenReturn(Optional.of(testPerson));
 
         Optional<PersonDog> result = out.findPersonByChatId(testChatId);
 
@@ -114,11 +116,34 @@ public class PersonDogServiceTest {
     void shouldReturnEmptyOptional_whenPersonWithChatIdNotFoundInDB() {
         Long testChatId = 123L;
 
-        when(personRepository.findPersonByChatId(anyLong())).thenReturn(Optional.empty());
+        when(personDogRepository.findPersonByChatId(anyLong())).thenReturn(Optional.empty());
 
         Optional<PersonDog> result = out.findPersonByChatId(testChatId);
 
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    void shouldReturnAnEmptyList_whenNoPeopleFoundByLastReportDateBefore() {
+        LocalDate testDate = LocalDate.now();
+        when(personDogRepository.findAllByLastReportDateBeforeAndAnimalIsNotNull(testDate)).thenReturn(Collections.emptyList());
+
+        List<PersonDog> result = out.findAllByLastReportDateBefore(testDate);
+
+        assertThat(result).hasSize(0);
+    }
+
+    @Test
+    void shouldReturnAListWithOnePerson_whenPeopleFoundByLastReportDateBefore() {
+        LocalDate testDate = LocalDate.now();
+        PersonDog testPerson = getTestPerson(1L, "Test");
+
+        when(personDogRepository.findAllByLastReportDateBeforeAndAnimalIsNotNull(testDate)).thenReturn(List.of(testPerson));
+
+        List<PersonDog> result = out.findAllByLastReportDateBefore(testDate);
+
+        assertThat(result).hasSize(1);
+        assertThat(result).contains(testPerson);
     }
 
     public static PersonDog getTestPerson(long id, String name) {

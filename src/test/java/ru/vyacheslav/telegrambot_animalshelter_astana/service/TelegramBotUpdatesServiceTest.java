@@ -13,6 +13,7 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextDoesNotMatc
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.*;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -233,7 +234,23 @@ public class TelegramBotUpdatesServiceTest {
         assertThat(result).isNotNull()
                 .isInstanceOf(Report.class)
                 .isEqualTo(testReport);
+    }
 
+    @Test
+    void shouldReturnListSizeTwo_whenFindPeopleToRemind() {
+        LocalDate testDate = LocalDate.now();
+        PersonDog dog_person = getTestPerson(1L, "Dog person");
+        dog_person.setChatId(123L);
+        PersonCat cat_person = getTestPersonCat(1L, "Cat person");
+        cat_person.setChatId(456L);
+
+        when(personDogService.findAllByLastReportDateBefore(testDate)).thenReturn(List.of(dog_person));
+        when(personCatService.findAllByLastReportDateBefore(testDate)).thenReturn(List.of(cat_person));
+
+        List<Long> result = out.findPeopleToRemind();
+
+        assertThat(result).hasSize(2)
+                .contains(dog_person.getChatId(), cat_person.getChatId());
     }
 
 

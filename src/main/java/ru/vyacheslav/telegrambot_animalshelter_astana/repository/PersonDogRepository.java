@@ -15,5 +15,5 @@ import java.util.Optional;
 public interface PersonDogRepository extends JpaRepository<PersonDog, Long> {
     Optional<PersonDog> findPersonByChatId(Long chatId);
 
-    List<PersonDog> findAllByLastReportDateBefore(LocalDate date);
+    List<PersonDog> findAllByLastReportDateBeforeAndAnimalIsNotNull(LocalDate date);
 }

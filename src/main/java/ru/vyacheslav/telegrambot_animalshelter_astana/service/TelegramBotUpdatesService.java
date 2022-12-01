@@ -10,8 +10,8 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonAlreadyEx
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextDoesNotMatchPatternException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.AnimalType;
-import ru.vyacheslav.telegrambot_animalshelter_astana.model.PersonDog;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.PersonCat;
+import ru.vyacheslav.telegrambot_animalshelter_astana.model.PersonDog;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Report;
 
 import java.time.LocalDate;
@@ -19,6 +19,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramBotConstants.CONTACT_DATA_PATTERN;
 
@@ -231,9 +232,16 @@ public class TelegramBotUpdatesService {
         return ChronoUnit.DAYS.between(personCat.getAnimalAdoptDate(), LocalDate.now());
     }
 
-    public List<PersonDog> findPeopleToRemind() {
+    public List<Long> findPeopleToRemind() {
         LocalDate date = LocalDate.now();
-        List<PersonDog> peopleNoReports = personDogService.findAllByLastReportDateBefore(date);
-       return peopleNoReports;
+        List<PersonDog> dogPeopleNoReports = personDogService.findAllByLastReportDateBefore(date);
+        logger.info("{} people with dogs were found with last report date before {}", dogPeopleNoReports.size(), date);
+        List<PersonCat> catPeopleNoReports = personCatService.findAllByLastReportDateBefore(date);
+        logger.info("{} people with cats were found with last report date before {}", catPeopleNoReports.size(), date);
+        List<Long> peopleWithoutReports = dogPeopleNoReports.stream().map(PersonDog::getChatId).collect(Collectors.toList());
+        peopleWithoutReports.addAll(catPeopleNoReports.stream().map(PersonCat::getChatId).collect(Collectors.toList()));
+        logger.info("Total number of people to remind about report: {}", peopleWithoutReports.size());
+
+       return peopleWithoutReports;
     }
 }

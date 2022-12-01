@@ -9,7 +9,9 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundE
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.PersonCat;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.PersonCatRepository;
 
+import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -116,6 +118,29 @@ public class PersonCatServiceTest {
         Optional<PersonCat> result = out.findPersonByChatId(testChatId);
 
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    void shouldReturnAnEmptyList_whenNoPeopleFoundByLastReportDateBefore() {
+        LocalDate testDate = LocalDate.now();
+        when(personCatRepository.findAllByLastReportDateBeforeAndAnimalIsNotNull(testDate)).thenReturn(Collections.emptyList());
+
+        List<PersonCat> result = out.findAllByLastReportDateBefore(testDate);
+
+        assertThat(result).hasSize(0);
+    }
+
+    @Test
+    void shouldReturnAListWithOnePerson_whenPeopleFoundByLastReportDateBefore() {
+        LocalDate testDate = LocalDate.now();
+        PersonCat testPerson = getTestPersonCat(1L, "Test");
+
+        when(personCatRepository.findAllByLastReportDateBeforeAndAnimalIsNotNull(testDate)).thenReturn(List.of(testPerson));
+
+        List<PersonCat> result = out.findAllByLastReportDateBefore(testDate);
+
+        assertThat(result).hasSize(1);
+        assertThat(result).contains(testPerson);
     }
 
     public static PersonCat getTestPersonCat(long id, String name) {

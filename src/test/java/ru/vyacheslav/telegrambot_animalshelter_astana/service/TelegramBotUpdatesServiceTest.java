@@ -21,10 +21,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import static ru.vyacheslav.telegrambot_animalshelter_astana.service.PersonCatServiceTest.getTestPersonCat;
-import static ru.vyacheslav.telegrambot_animalshelter_astana.service.PersonServiceTest.getTestPerson;
+import static ru.vyacheslav.telegrambot_animalshelter_astana.service.PersonDogServiceTest.getTestPerson;
 import static ru.vyacheslav.telegrambot_animalshelter_astana.service.ReportServiceTest.addTestReport;
 
-/**Unit tests for {@link TelegramBotUpdatesService} class with {@link PersonService} mock.
+/**Unit tests for {@link TelegramBotUpdatesService} class with {@link PersonDogService} mock.
  *
  * @author Oleg Alekseenko
  */
@@ -33,7 +33,7 @@ import static ru.vyacheslav.telegrambot_animalshelter_astana.service.ReportServi
 public class TelegramBotUpdatesServiceTest {
 
     @Mock
-    private PersonService personService;
+    private PersonDogService personDogService;
     @Mock
     private PersonCatService personCatService;
     @Mock
@@ -44,7 +44,7 @@ public class TelegramBotUpdatesServiceTest {
 
     @Test
     void shouldCreateNewPersonDog_whenContactDataReceived() {
-        Person testPerson = new Person();
+        PersonDog testPerson = new PersonDog();
         testPerson.setName("Test");
         testPerson.setPhone("79031234567");
         testPerson.setEmail("test@gmail.com");
@@ -56,12 +56,12 @@ public class TelegramBotUpdatesServiceTest {
                 "Email: test@gmail.com;\n" +
                 "Адрес: City";
 
-        when(personService.findPersonByChatId(anyLong())).thenReturn(Optional.empty());
-        when(personService.createPerson(any(Person.class))).thenReturn(testPerson);
+        when(personDogService.findPersonByChatId(anyLong())).thenReturn(Optional.empty());
+        when(personDogService.createPerson(any(PersonDog.class))).thenReturn(testPerson);
 
         out.createPersonFromMessage(1L, testMessage, AnimalType.DOG);
 
-        verify(personService, atLeastOnce()).createPerson(any(Person.class));
+        verify(personDogService, atLeastOnce()).createPerson(any(PersonDog.class));
         verify(personCatService, never()).createPerson(any(PersonCat.class));
     }
 
@@ -85,15 +85,15 @@ public class TelegramBotUpdatesServiceTest {
         out.createPersonFromMessage(1L, testMessage, AnimalType.CAT);
 
         verify(personCatService, atLeastOnce()).createPerson(any(PersonCat.class));
-        verify(personService, never()).createPerson(any(Person.class));
+        verify(personDogService, never()).createPerson(any(PersonDog.class));
     }
 
     @Test
     void shouldThrowPersonAlreadyExistsException_whenCreateNewPersonFromContactData() {
-        when(personService.findPersonByChatId(anyLong())).thenReturn(Optional.of(getTestPerson(1L, "Test")));
+        when(personDogService.findPersonByChatId(anyLong())).thenReturn(Optional.of(getTestPerson(1L, "Test")));
 
         assertThatThrownBy(() -> out.createPersonFromMessage(anyLong(), "anyString()", AnimalType.DOG)).isInstanceOf(PersonAlreadyExistsException.class);
-        verify(personService, never()).createPerson(any(Person.class));
+        verify(personDogService, never()).createPerson(any(PersonDog.class));
     }
 
     @Test
@@ -110,17 +110,17 @@ public class TelegramBotUpdatesServiceTest {
                 "Телефон: +79;\n" +
                 "Почта: test";
 
-        when(personService.findPersonByChatId(anyLong())).thenReturn(Optional.empty());
+        when(personDogService.findPersonByChatId(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> out.createPersonFromMessage(anyLong(), testMessage, AnimalType.DOG)).isInstanceOf(TextDoesNotMatchPatternException.class);
-        verify(personService, never()).createPerson(any(Person.class));
+        verify(personDogService, never()).createPerson(any(PersonDog.class));
     }
 
     @Test
     void shouldThrowNoAnimalException_whenCountDaysFromAdoptionForPersonWithoutAnimal() {
-        Person testPerson = getTestPerson(1L, "Test");
+        PersonDog testPerson = getTestPerson(1L, "Test");
 
-        when(personService.findPersonByChatId(anyLong())).thenReturn(Optional.of(testPerson));
+        when(personDogService.findPersonByChatId(anyLong())).thenReturn(Optional.of(testPerson));
 
         assertThatThrownBy(() -> out.countDaysFromAdoption(anyLong(), AnimalType.DOG)).isInstanceOf(NoAnimalAdoptedException.class);
     }
@@ -136,49 +136,49 @@ public class TelegramBotUpdatesServiceTest {
 
     @Test
     void shouldThrowPersonNotFoundException_whenCreateNewReportForUserNotInDB() {
-        when(personService.findPersonByChatId(anyLong())).thenReturn(Optional.empty());
+        when(personDogService.findPersonByChatId(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> out.createReportFromMessage(anyLong(), null, null, AnimalType.DOG)).isInstanceOf(PersonNotFoundException.class);
-        verify(personService, never()).updatePerson(any(Person.class));
+        verify(personDogService, never()).updatePerson(any(PersonDog.class));
         verify(reportService, never()).addReport(any(Report.class));
     }
 
     @Test
     void shouldThrowException_whenCreateReportWithoutAnimal() {
-        Person testPerson = new Person();
+        PersonDog testPerson = new PersonDog();
         testPerson.setId(1L);
         testPerson.setChatId(1L);
 
-        when(personService.findPersonByChatId(anyLong())).thenReturn(Optional.of(testPerson));
+        when(personDogService.findPersonByChatId(anyLong())).thenReturn(Optional.of(testPerson));
 
         assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), new FotoObjectDto(), "null", AnimalType.DOG))
                 .isInstanceOf(NoAnimalAdoptedException.class);
 
-        verify(personService, never()).updatePerson(any(Person.class));
+        verify(personDogService, never()).updatePerson(any(PersonDog.class));
         verify(reportService, never()).addReport(any(Report.class));
     }
 
     @Test
     void shouldThrowException_whenCreateReportWithTheSameDate() {
-        Person testPerson = new Person();
+        PersonDog testPerson = new PersonDog();
         testPerson.setId(1L);
         testPerson.setChatId(1L);
         testPerson.setAnimal(new Animal(1L, "Test cat", AnimalType.DOG));
         testPerson.setLastReportDate(LocalDate.now());
 
-        when(personService.findPersonByChatId(anyLong())).thenReturn(Optional.of(testPerson));
+        when(personDogService.findPersonByChatId(anyLong())).thenReturn(Optional.of(testPerson));
 
         assertThatThrownBy(() -> out.createReportFromMessage(testPerson.getChatId(), new FotoObjectDto(), "null", AnimalType.DOG))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("Report has sent");
 
-        verify(personService, never()).updatePerson(any(Person.class));
+        verify(personDogService, never()).updatePerson(any(PersonDog.class));
         verify(reportService, never()).addReport(any(Report.class));
     }
 
     @Test
     void shouldCreateNewReportFromMessage() {
-        Person testPerson = new Person();
+        PersonDog testPerson = new PersonDog();
         testPerson.setId(1L);
         testPerson.setChatId(1L);
         testPerson.setAnimal(new Animal(1L, "Test cat", AnimalType.DOG));
@@ -193,9 +193,9 @@ public class TelegramBotUpdatesServiceTest {
         testReport.setPhotoSize(fotoObjDto.getPhotoSize());
         testReport.setPhotoData(fotoObjDto.getPhotoData());
         testReport.setMediaType(fotoObjDto.getMediaType());
-        testReport.setPerson(testPerson);
+        testReport.setPersonDog(testPerson);
 
-        when(personService.findPersonByChatId(anyLong())).thenReturn(Optional.of(testPerson));
+        when(personDogService.findPersonByChatId(anyLong())).thenReturn(Optional.of(testPerson));
         when(reportService.addReport(any(Report.class))).thenReturn(testReport);
 
         Report result = out.createReportFromMessage(testPerson.getChatId(), fotoObjDto, caption, AnimalType.DOG);

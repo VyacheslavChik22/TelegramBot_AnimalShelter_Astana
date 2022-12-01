@@ -6,8 +6,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
-import ru.vyacheslav.telegrambot_animalshelter_astana.model.Person;
-import ru.vyacheslav.telegrambot_animalshelter_astana.repository.PersonRepository;
+import ru.vyacheslav.telegrambot_animalshelter_astana.model.PersonDog;
+import ru.vyacheslav.telegrambot_animalshelter_astana.repository.PersonDogRepository;
 
 import java.util.Collection;
 import java.util.List;
@@ -17,25 +17,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
-/**Unit tests for {@link PersonService} class with {@link PersonRepository} mock.
+/**Unit tests for {@link PersonDogService} class with {@link PersonDogRepository} mock.
  *
  * @author Oleg Alekseenko
  */
 
 @ExtendWith(MockitoExtension.class)
-public class PersonServiceTest {
+public class PersonDogServiceTest {
     @Mock
-    private PersonRepository personRepository;
+    private PersonDogRepository personRepository;
 
     @InjectMocks
-    private PersonService out;
+    private PersonDogService out;
 
     @Test
     void shouldCreateNewPerson() {
-        Person testPerson = getTestPerson(1, "Test 1");
+        PersonDog testPerson = getTestPerson(1, "Test 1");
 
-        when(personRepository.save(any(Person.class))).thenReturn(testPerson);
-        Person result = out.createPerson(testPerson);
+        when(personRepository.save(any(PersonDog.class))).thenReturn(testPerson);
+        PersonDog result = out.createPerson(testPerson);
 
         assertThat(result).isEqualTo(testPerson);
         assertThat(result.getId()).isEqualTo(testPerson.getId());
@@ -43,18 +43,18 @@ public class PersonServiceTest {
 
     @Test
     void shouldReturnAllPeople() {
-        when(personRepository.findAll()).thenReturn(List.of(new Person(), new Person()));
-        Collection<Person> result = out.findAll();
+        when(personRepository.findAll()).thenReturn(List.of(new PersonDog(), new PersonDog()));
+        Collection<PersonDog> result = out.findAll();
 
         assertThat(result).hasSize(2);
     }
 
     @Test
     void shouldReturnPersonById() {
-        Person testPerson = getTestPerson(1, "Test 1");
+        PersonDog testPerson = getTestPerson(1, "Test 1");
 
         when(personRepository.findById(anyLong())).thenReturn(Optional.of(testPerson));
-        Person result = out.findPerson(testPerson.getId());
+        PersonDog result = out.findPerson(testPerson.getId());
 
         assertThat(result).isNotNull();
         assertThat(result).isEqualTo(testPerson);
@@ -69,11 +69,11 @@ public class PersonServiceTest {
 
     @Test
     void shouldUpdatePerson() {
-        Person testPerson = getTestPerson(1, "Test 1");
+        PersonDog testPerson = getTestPerson(1, "Test 1");
 
         when(personRepository.existsById(testPerson.getId())).thenReturn(true);
-        when(personRepository.save(any(Person.class))).thenReturn(testPerson);
-        Person result = out.updatePerson(testPerson);
+        when(personRepository.save(any(PersonDog.class))).thenReturn(testPerson);
+        PersonDog result = out.updatePerson(testPerson);
 
         assertThat(result).isNotNull();
         assertThat(result).isEqualTo(testPerson);
@@ -81,7 +81,7 @@ public class PersonServiceTest {
 
     @Test
     void shouldThrowPersonNotFoundException_whenUpdatePersonWithWrongId() {
-        Person testPerson = getTestPerson(1, "Test 1");
+        PersonDog testPerson = getTestPerson(1, "Test 1");
 
         when(personRepository.existsById(testPerson.getId())).thenReturn(false);
 
@@ -99,12 +99,12 @@ public class PersonServiceTest {
     @Test
     void shouldReturnOptionalWithPerson_whenFindPersonByChatId() {
         Long testChatId = 123L;
-        Person testPerson = getTestPerson(1L, "Test 1");
+        PersonDog testPerson = getTestPerson(1L, "Test 1");
         testPerson.setChatId(testChatId);
 
         when(personRepository.findPersonByChatId(anyLong())).thenReturn(Optional.of(testPerson));
 
-        Optional<Person> result = out.findPersonByChatId(testChatId);
+        Optional<PersonDog> result = out.findPersonByChatId(testChatId);
 
         assertThat(result).isPresent();
         assertThat(result.get()).isEqualTo(testPerson);
@@ -116,13 +116,13 @@ public class PersonServiceTest {
 
         when(personRepository.findPersonByChatId(anyLong())).thenReturn(Optional.empty());
 
-        Optional<Person> result = out.findPersonByChatId(testChatId);
+        Optional<PersonDog> result = out.findPersonByChatId(testChatId);
 
         assertThat(result).isEmpty();
     }
 
-    public static Person getTestPerson(long id, String name) {
-        Person testPerson = new Person();
+    public static PersonDog getTestPerson(long id, String name) {
+        PersonDog testPerson = new PersonDog();
         testPerson.setId(id);
         testPerson.setName(name);
         return testPerson;

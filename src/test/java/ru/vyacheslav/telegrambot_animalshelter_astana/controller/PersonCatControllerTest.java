@@ -48,7 +48,7 @@ public class PersonCatControllerTest {
 
         when(personCatRepository.findAll()).thenReturn(List.of(testPerson));
 
-        mockMvc.perform(get("/people-cat"))
+        mockMvc.perform(get("/cat-people"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().json(objectMapper.writeValueAsString(List.of(testPerson))));
@@ -59,7 +59,7 @@ public class PersonCatControllerTest {
         PersonCat testPerson = getTestPersonCat(1L, "Test 1");
         when(personCatRepository.findById(anyLong())).thenReturn(Optional.of(testPerson));
 
-        mockMvc.perform(get("/people-cat/" + testPerson.getId())
+        mockMvc.perform(get("/cat-people/" + testPerson.getId())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(testPerson)));
@@ -69,7 +69,7 @@ public class PersonCatControllerTest {
     void getPersonById_whenNotFoundTest() throws Exception {
         when(personCatRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/people-cat/" + 1)
+        mockMvc.perform(get("/cat-people/" + 1)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
@@ -82,7 +82,7 @@ public class PersonCatControllerTest {
 
         when(personCatRepository.save(any(PersonCat.class))).thenReturn(testPerson);
 
-        mockMvc.perform(post("/people-cat")
+        mockMvc.perform(post("/cat-people")
                         .content(personObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -99,7 +99,7 @@ public class PersonCatControllerTest {
 
         when(personCatRepository.save(any(PersonCat.class))).thenReturn(null);
 
-        mockMvc.perform(post("/people-cat")
+        mockMvc.perform(post("/cat-people")
                         .content(personObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -116,7 +116,7 @@ public class PersonCatControllerTest {
         when(personCatRepository.existsById(anyLong())).thenReturn(true);
         when(personCatRepository.save(any(PersonCat.class))).thenReturn(testPerson);
 
-        mockMvc.perform(put("/people-cat")
+        mockMvc.perform(put("/cat-people")
                         .content(personObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -134,7 +134,7 @@ public class PersonCatControllerTest {
         when(personCatRepository.existsById(testPerson.getId())).thenReturn(false);
         when(personCatRepository.save(any(PersonCat.class))).thenReturn(testPerson);
 
-        mockMvc.perform(put("/people-cat")
+        mockMvc.perform(put("/cat-people")
                         .content(personObject.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -148,7 +148,7 @@ public class PersonCatControllerTest {
         when(personCatRepository.findById(anyLong())).thenReturn(Optional.of(getTestPersonCat(1, "Test 1")));
         doNothing().when(personCatRepository).delete(any(PersonCat.class));
 
-        mockMvc.perform(delete("/people-cat/" + 1))
+        mockMvc.perform(delete("/cat-people/" + 1))
                 .andExpect(status().isOk());
 
         verify(personCatRepository, atLeastOnce()).delete(any(PersonCat.class));
@@ -159,7 +159,7 @@ public class PersonCatControllerTest {
         when(personCatRepository.findById(anyLong())).thenReturn(Optional.empty());
         doNothing().when(personCatRepository).delete(any(PersonCat.class));
 
-        mockMvc.perform(delete("/people-cat/" + 1))
+        mockMvc.perform(delete("/cat-people/" + 1))
                 .andExpect(status().isNotFound());
 
         verify(personCatRepository, never()).delete(any(PersonCat.class));

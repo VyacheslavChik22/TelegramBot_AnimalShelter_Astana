@@ -4,8 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
-import ru.vyacheslav.telegrambot_animalshelter_astana.model.Person;
-import ru.vyacheslav.telegrambot_animalshelter_astana.repository.PersonRepository;
+import ru.vyacheslav.telegrambot_animalshelter_astana.model.PersonDog;
+import ru.vyacheslav.telegrambot_animalshelter_astana.repository.PersonDogRepository;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -17,13 +17,13 @@ import java.util.Optional;
  * @author Oleg Alekseenko
  */
 @Service
-public class PersonService {
-    private final Logger logger = LoggerFactory.getLogger(PersonService.class);
+public class PersonDogService {
+    private final Logger logger = LoggerFactory.getLogger(PersonDogService.class);
 
-    private final PersonRepository personRepository;
+    private final PersonDogRepository personDogRepository;
 
-    public PersonService(PersonRepository personRepository) {
-        this.personRepository = personRepository;
+    public PersonDogService(PersonDogRepository personDogRepository) {
+        this.personDogRepository = personDogRepository;
     }
 
 
@@ -32,9 +32,9 @@ public class PersonService {
      *
      * @return unmodifiable collection
      */
-    public Collection<Person> findAll() {
+    public Collection<PersonDog> findAll() {
         logger.info("Was invoked method to get all people");
-        return Collections.unmodifiableCollection(personRepository.findAll());
+        return Collections.unmodifiableCollection(personDogRepository.findAll());
     }
 
     /**
@@ -44,27 +44,27 @@ public class PersonService {
      * @return person model
      * @throws PersonNotFoundException if no entry was found in DB
      */
-    public Person findPerson(long id) {
+    public PersonDog findPerson(long id) {
         logger.info("Was invoked method for find person by id: {}", id);
-        return personRepository.findById(id).orElseThrow(PersonNotFoundException::new);
+        return personDogRepository.findById(id).orElseThrow(PersonNotFoundException::new);
     }
 
-    public Person createPerson(Person person) {
+    public PersonDog createPerson(PersonDog person) {
         logger.info("Was invoked method for create person");
-        return personRepository.save(person);
+        return personDogRepository.save(person);
     }
 
-    public Person updatePerson(Person person) {
+    public PersonDog updatePerson(PersonDog person) {
         logger.info("Was invoked method for update person");
-        if (person.getId() == null || !personRepository.existsById(person.getId())) {
+        if (person.getId() == null || !personDogRepository.existsById(person.getId())) {
             logger.warn("Person with id: '{}' not found and could not be updated.", person.getId());
             throw new PersonNotFoundException();
         }
-        return personRepository.save(person);
+        return personDogRepository.save(person);
     }
 
-    public List<Person> findAllByLastReportDateBefore(LocalDate date) {
-        return personRepository.findAllByLastReportDateBefore(date);
+    public List<PersonDog> findAllByLastReportDateBefore(LocalDate date) {
+        return personDogRepository.findAllByLastReportDateBefore(date);
     }
 
     /**
@@ -75,8 +75,8 @@ public class PersonService {
      */
     public void deletePerson(long id) {
         logger.info("Was invoked method for delete person by id: {}", id);
-        Person person = findPerson(id);
-        personRepository.delete(person);
+        PersonDog person = findPerson(id);
+        personDogRepository.delete(person);
     }
 
     /**
@@ -85,7 +85,7 @@ public class PersonService {
      * @param chatId telegram chat identification number
      * @return Optional of person
      */
-    public Optional<Person> findPersonByChatId(Long chatId) {
-        return personRepository.findPersonByChatId(chatId);
+    public Optional<PersonDog> findPersonByChatId(Long chatId) {
+        return personDogRepository.findPersonByChatId(chatId);
     }
 }

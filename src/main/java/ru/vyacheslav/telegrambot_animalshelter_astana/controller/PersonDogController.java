@@ -9,22 +9,22 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.vyacheslav.telegrambot_animalshelter_astana.model.Person;
-import ru.vyacheslav.telegrambot_animalshelter_astana.service.PersonService;
+import ru.vyacheslav.telegrambot_animalshelter_astana.model.PersonDog;
+import ru.vyacheslav.telegrambot_animalshelter_astana.service.PersonDogService;
 
 import java.util.Collection;
 
 /**
- * REST endpoints for CRUD operations with {@link Person} model.
+ * REST endpoints for CRUD operations with {@link PersonDog} model.
  * @author Oleg Alekseenko
  */
 @RestController
-@RequestMapping(path = "/people-dog")
-public class PersonController {
-    private final PersonService personService;
+@RequestMapping(path = "/dog-people")
+public class PersonDogController {
+    private final PersonDogService personDogService;
 
-    public PersonController(PersonService personService) {
-        this.personService = personService;
+    public PersonDogController(PersonDogService personDogService) {
+        this.personDogService = personDogService;
     }
 
     @Operation(
@@ -35,13 +35,13 @@ public class PersonController {
                             description = "Found people",
                             content = {
                                     @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                            array = @ArraySchema(schema = @Schema(implementation = Person.class))
+                                            array = @ArraySchema(schema = @Schema(implementation = PersonDog.class))
                                             )
                             })
             })
     @GetMapping
-    public ResponseEntity<Collection<Person>> getAllPeople() {
-        return ResponseEntity.ok(personService.findAll());
+    public ResponseEntity<Collection<PersonDog>> getAllPeople() {
+        return ResponseEntity.ok(personDogService.findAll());
     }
 
     @Operation(
@@ -52,7 +52,7 @@ public class PersonController {
                             description = "Found person by id",
                             content = {
                                     @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Person.class))
+                                    schema = @Schema(implementation = PersonDog.class))
                             }
                     ),
                     @ApiResponse(
@@ -69,8 +69,8 @@ public class PersonController {
             }
     )
     @GetMapping(path = "/{id}")
-    public ResponseEntity<Person> getPersonById(@PathVariable long id) {
-        return ResponseEntity.ok(personService.findPerson(id));
+    public ResponseEntity<PersonDog> getPersonById(@PathVariable long id) {
+        return ResponseEntity.ok(personDogService.findPerson(id));
     }
 
     @Operation(
@@ -79,7 +79,7 @@ public class PersonController {
                     description = "Person's data to save in DB",
                     content = @Content(
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = Person.class)
+                            schema = @Schema(implementation = PersonDog.class)
                     )
             ),
             responses = @ApiResponse(
@@ -87,13 +87,13 @@ public class PersonController {
                     description = "New person was saved in DB",
                     content = {
                             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Person.class))
+                                    schema = @Schema(implementation = PersonDog.class))
                     }
             )
     )
     @PostMapping
-    public ResponseEntity<Person> createPerson(@RequestBody Person person) {
-        Person createdPerson = personService.createPerson(person);
+    public ResponseEntity<PersonDog> createPerson(@RequestBody PersonDog person) {
+        PersonDog createdPerson = personDogService.createPerson(person);
         if (createdPerson == null) {
             return ResponseEntity.badRequest().build();
         }
@@ -106,7 +106,7 @@ public class PersonController {
                     description = "Person's data to update",
                     content = @Content(
                             mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = Person.class)
+                            schema = @Schema(implementation = PersonDog.class)
                     )
             ),
             responses = @ApiResponse(
@@ -114,13 +114,13 @@ public class PersonController {
                     description = "Person's data was updated in DB",
                     content = {
                             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Person.class))
+                                    schema = @Schema(implementation = PersonDog.class))
                     }
             )
     )
     @PutMapping
-    public ResponseEntity<Person> updatePerson(@RequestBody Person person) {
-        Person updatedPerson = personService.updatePerson(person);
+    public ResponseEntity<PersonDog> updatePerson(@RequestBody PersonDog person) {
+        PersonDog updatedPerson = personDogService.updatePerson(person);
         if (updatedPerson == null) {
             return ResponseEntity.badRequest().build();
         }
@@ -148,7 +148,7 @@ public class PersonController {
     )
     @DeleteMapping(path = "/{id}")
     public ResponseEntity<Void> deletePerson(@PathVariable long id) {
-        personService.deletePerson(id);
+        personDogService.deletePerson(id);
         return ResponseEntity.ok().build();
     }
 }

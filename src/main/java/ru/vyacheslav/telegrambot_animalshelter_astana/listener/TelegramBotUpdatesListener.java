@@ -24,12 +24,11 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextDoesNotMatc
 
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.AnimalType;
 
-import ru.vyacheslav.telegrambot_animalshelter_astana.model.Person;
+import ru.vyacheslav.telegrambot_animalshelter_astana.model.PersonDog;
 import ru.vyacheslav.telegrambot_animalshelter_astana.service.TelegramBotUpdatesService;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -348,9 +347,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
         return fotoObjectDto;
     }
-    @Scheduled(cron = "0 0 * * *")
+    @Scheduled(cron = "0 0 22 * * *")
     public void RemindAboutReports(){
-     List<Person> personList =  telegramBotUpdatesService.findPeopleToRemind();
+     List<PersonDog> personList =  telegramBotUpdatesService.findPeopleToRemind();
         if(personList.size() > 0){
             personList.forEach(p -> sendMessage(p.getChatId(),  "До сдачи отчета осталось немного времени!"));
         }

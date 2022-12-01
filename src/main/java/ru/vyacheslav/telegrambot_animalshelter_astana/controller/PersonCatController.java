@@ -15,7 +15,7 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.service.PersonCatService;
 import java.util.Collection;
 
 @RestController
-@RequestMapping(path = "/people-cat")
+@RequestMapping(path = "/cat-people")
 public class PersonCatController {
     private final PersonCatService personCatService;
 

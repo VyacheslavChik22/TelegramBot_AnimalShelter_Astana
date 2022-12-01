@@ -8,8 +8,8 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name = "Person")
-public class Person {
+//@Table(name = "Person")
+public class PersonDog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,7 +35,7 @@ public class Person {
         this.animal = animal;
     }
     @JsonIgnore
-    @OneToMany(mappedBy = "person")
+    @OneToMany(mappedBy = "personDog")
     private Set <Report> reports;
 
     public Set<Report> getReports() {
@@ -46,11 +46,11 @@ public class Person {
         this.reports = reports;
     }
 
-    public Person() {
+    public PersonDog() {
 
     }
 
-    public Person(Long id, String name, String email, String phone, String address, Long chatId, LocalDate animalAdoptDate, LocalDate lastReportDate, Animal animal, Set<Report> reports) {
+    public PersonDog(Long id, String name, String email, String phone, String address, Long chatId, LocalDate animalAdoptDate, LocalDate lastReportDate, Animal animal, Set<Report> reports) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -131,7 +131,7 @@ public class Person {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Person person = (Person) o;
+        PersonDog person = (PersonDog) o;
         return Objects.equals(id, person.id) && Objects.equals(name, person.name) && Objects.equals(email, person.email) && Objects.equals(phone, person.phone) && Objects.equals(address, person.address) && Objects.equals(chatId, person.chatId) && Objects.equals(animalAdoptDate, person.animalAdoptDate) && Objects.equals(lastReportDate, person.lastReportDate) && Objects.equals(animal, person.animal) && Objects.equals(reports, person.reports);
     }
 
@@ -142,7 +142,7 @@ public class Person {
 
     @Override
     public String toString() {
-        return "Person{" +
+        return "PersonDog{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +

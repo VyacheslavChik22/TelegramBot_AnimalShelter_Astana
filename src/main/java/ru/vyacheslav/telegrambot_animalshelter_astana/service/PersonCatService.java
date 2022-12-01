@@ -84,6 +84,6 @@ public class PersonCatService {
 
     public List<PersonCat> findAllByLastReportDateBefore(LocalDate date) {
         logger.info("Was invoked method to find all cat people with last report date before {}", date);
-        return personCatRepository.findAllByLastReportDateBeforeAndAnimalIsNotNull(date);
+        return personCatRepository.findAllByLastReportDateBeforeOrLastReportDateIsNullAndAnimalIsNotNull(date);
     }
 }

@@ -13,5 +13,5 @@ public interface PersonCatRepository extends JpaRepository<PersonCat, Long> {
 
     Optional<PersonCat> findPersonByChatId(Long chatId);
 
-    List<PersonCat> findAllByLastReportDateBeforeAndAnimalIsNotNull(LocalDate date);
+    List<PersonCat> findAllByLastReportDateBeforeOrLastReportDateIsNullAndAnimalIsNotNull(LocalDate date);
 }

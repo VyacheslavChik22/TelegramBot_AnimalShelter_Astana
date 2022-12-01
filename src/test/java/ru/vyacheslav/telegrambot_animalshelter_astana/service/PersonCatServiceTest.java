@@ -123,7 +123,7 @@ public class PersonCatServiceTest {
     @Test
     void shouldReturnAnEmptyList_whenNoPeopleFoundByLastReportDateBefore() {
         LocalDate testDate = LocalDate.now();
-        when(personCatRepository.findAllByLastReportDateBeforeAndAnimalIsNotNull(testDate)).thenReturn(Collections.emptyList());
+        when(personCatRepository.findAllByLastReportDateBeforeOrLastReportDateIsNullAndAnimalIsNotNull(testDate)).thenReturn(Collections.emptyList());
 
         List<PersonCat> result = out.findAllByLastReportDateBefore(testDate);
 
@@ -135,7 +135,7 @@ public class PersonCatServiceTest {
         LocalDate testDate = LocalDate.now();
         PersonCat testPerson = getTestPersonCat(1L, "Test");
 
-        when(personCatRepository.findAllByLastReportDateBeforeAndAnimalIsNotNull(testDate)).thenReturn(List.of(testPerson));
+        when(personCatRepository.findAllByLastReportDateBeforeOrLastReportDateIsNullAndAnimalIsNotNull(testDate)).thenReturn(List.of(testPerson));
 
         List<PersonCat> result = out.findAllByLastReportDateBefore(testDate);
 

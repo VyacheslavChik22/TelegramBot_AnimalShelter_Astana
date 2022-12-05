@@ -9,34 +9,18 @@ import java.util.Set;
 
 @Entity
 //@Table(name = "Person_cat")
-public class PersonCat {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String name;
-    private String email;
-    private String phone;
-    private String address;
-    private Long chatId;
-    private LocalDate animalAdoptDate;
-    private LocalDate lastReportDate;
-
-    @OneToOne
-    @JoinColumn(name = "animal_id")
-    private Animal animal;
-
-    public Animal getAnimal() {
-        return animal;
-    }
-
-    public void setAnimal(Animal animal) {
-        this.animal = animal;
-    }
-
+public class PersonCat extends AbstractPerson{
     @JsonIgnore
     @OneToMany(mappedBy = "personCat")
     private Set<Report> reports;
+
+    public PersonCat() {
+    }
+
+    public PersonCat(Long id, String name, String email, String phone, String address, Long chatId, LocalDate animalAdoptDate, LocalDate lastReportDate, Animal animal, Set<Report> reports) {
+        super(id, name, email, phone, address, chatId, animalAdoptDate, lastReportDate, animal);
+        this.reports = reports;
+    }
 
     public Set<Report> getReports() {
         return reports;
@@ -44,114 +28,5 @@ public class PersonCat {
 
     public void setReports(Set<Report> reports) {
         this.reports = reports;
-    }
-
-    public PersonCat() {
-    }
-
-    public PersonCat(Long id, String name, String email, String phone, String address, Long chatId, LocalDate animalAdoptDate, LocalDate lastReportDate, Animal animal, Set<Report> reports) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
-        this.address = address;
-        this.chatId = chatId;
-        this.animalAdoptDate = animalAdoptDate;
-        this.lastReportDate = lastReportDate;
-        this.animal = animal;
-        this.reports = reports;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public Long getChatId() {
-        return chatId;
-    }
-
-    public void setChatId(Long chatId) {
-        this.chatId = chatId;
-    }
-
-    public LocalDate getAnimalAdoptDate() {
-        return animalAdoptDate;
-    }
-
-    public void setAnimalAdoptDate(LocalDate animalAdoptDate) {
-        this.animalAdoptDate = animalAdoptDate;
-    }
-
-    public LocalDate getLastReportDate() {
-        return lastReportDate;
-    }
-
-    public void setLastReportDate(LocalDate lastReportDate) {
-        this.lastReportDate = lastReportDate;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        PersonCat personCat = (PersonCat) o;
-        return id.equals(personCat.id) && name.equals(personCat.name) && email.equals(personCat.email) && phone.equals(personCat.phone) && address.equals(personCat.address) && chatId.equals(personCat.chatId) && animalAdoptDate.equals(personCat.animalAdoptDate) && lastReportDate.equals(personCat.lastReportDate) && animal.equals(personCat.animal) && reports.equals(personCat.reports);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, email, phone, address, chatId, animalAdoptDate, lastReportDate, animal, reports);
-    }
-
-    @Override
-    public String toString() {
-        return "PersonCat{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                ", phone='" + phone + '\'' +
-                ", address='" + address + '\'' +
-                ", chatId=" + chatId +
-                ", animalAdoptDate=" + animalAdoptDate +
-                ", lastReportDate=" + lastReportDate +
-                ", animal=" + animal +
-                ", reports=" + reports +
-                '}';
     }
 }

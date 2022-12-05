@@ -1,5 +1,14 @@
 package ru.vyacheslav.telegrambot_animalshelter_astana.service;
 
+import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramBotConstants.CONTACT_DATA_PATTERN;
+
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -9,17 +18,11 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.NoAnimalAdopted
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonAlreadyExistsException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextDoesNotMatchPatternException;
-import ru.vyacheslav.telegrambot_animalshelter_astana.model.*;
-
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramBotConstants.CONTACT_DATA_PATTERN;
+import ru.vyacheslav.telegrambot_animalshelter_astana.model.AbstractPerson;
+import ru.vyacheslav.telegrambot_animalshelter_astana.model.AnimalType;
+import ru.vyacheslav.telegrambot_animalshelter_astana.model.PersonCat;
+import ru.vyacheslav.telegrambot_animalshelter_astana.model.PersonDog;
+import ru.vyacheslav.telegrambot_animalshelter_astana.model.Report;
 
 @Service
 public class TelegramBotUpdatesService {
@@ -47,20 +50,10 @@ public class TelegramBotUpdatesService {
      */
     public void createPersonFromMessage(Long chatId, String messageText, AnimalType animalType) {
         logger.info("Was invoked method to create person and set their contact data from the message");
-        AbstractPerson person;
-        if (animalType == AnimalType.DOG) {
-            if (personDogService.findPersonByChatId(chatId).isPresent()) {
-                logger.info("Person with {} is already saved in DB", chatId);
-                throw new PersonAlreadyExistsException();
-            }
-            person = new PersonDog();
-        } else {
-            if (personCatService.findPersonByChatId(chatId).isPresent()) {
-                logger.info("Person with {} is already saved in DB", chatId);
-                throw new PersonAlreadyExistsException();
-            }
-            person = new PersonCat();
-        }
+        Predicate<Long> existsPerson = cId -> animalType == AnimalType.DOG ?
+                personDogService.findPersonByChatId(cId).isPresent() :
+                personCatService.findPersonByChatId(cId).isPresent();
+        AbstractPerson person = personProducer(chatId, animalType, existsPerson);
 
         // Parse message text in accordance with the pattern
         ContactDataDto contactData = parseText(messageText);
@@ -71,11 +64,21 @@ public class TelegramBotUpdatesService {
         person.setAddress(contactData.getAddress());
         person.setChatId(chatId);
         // Cast AbstractPerson based on AnimalType and use the proper service
-        if (animalType == AnimalType.DOG) {
+        if (person instanceof PersonDog) {
             personDogService.createPerson((PersonDog) person);
         } else {
             personCatService.createPerson((PersonCat) person);
         }
+    }
+
+    private AbstractPerson personProducer(Long chatId,
+                                          AnimalType animalType,
+                                          Predicate<Long> existsPredicate) {
+        if (existsPredicate.test(chatId)) {
+            logger.info("Person with {} is already saved in DB", chatId);
+            throw new PersonAlreadyExistsException();
+        }
+        return animalType == AnimalType.DOG ? new PersonDog() : new PersonCat();
     }
 
     /**

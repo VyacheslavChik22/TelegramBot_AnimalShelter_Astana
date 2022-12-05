@@ -184,13 +184,13 @@ public class TelegramBotUpdatesService {
             throw new PersonAlreadyExistsException();
         }
         // Parse message text in accordance with the pattern
-        ContactDataDto contact_data = parseText(messageText);
+        ContactDataDto contactData = parseText(messageText);
         // Create new person entity and set necessary values
         PersonCat personCat = new PersonCat();
-        personCat.setName(contact_data.getName());
-        personCat.setPhone(contact_data.getPhone());
-        personCat.setEmail(contact_data.getEmail());
-        personCat.setAddress(contact_data.getAddress());
+        personCat.setName(contactData.getName());
+        personCat.setPhone(contactData.getPhone());
+        personCat.setEmail(contactData.getEmail());
+        personCat.setAddress(contactData.getAddress());
         personCat.setChatId(chatId);
         personCatService.createPerson(personCat);
     }
@@ -201,13 +201,13 @@ public class TelegramBotUpdatesService {
             throw new PersonAlreadyExistsException();
         }
         // Parse message text in accordance with the pattern
-        ContactDataDto contact_data = parseText(messageText);
+        ContactDataDto contactData = parseText(messageText);
         // Create new person entity and set necessary values
         PersonDog person = new PersonDog();
-        person.setName(contact_data.getName());
-        person.setPhone(contact_data.getPhone());
-        person.setEmail(contact_data.getEmail());
-        person.setAddress(contact_data.getAddress());
+        person.setName(contactData.getName());
+        person.setPhone(contactData.getPhone());
+        person.setEmail(contactData.getEmail());
+        person.setAddress(contactData.getAddress());
         person.setChatId(chatId);
         personDogService.createPerson(person);
     }

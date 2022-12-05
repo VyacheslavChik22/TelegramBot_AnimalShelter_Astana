@@ -345,8 +345,6 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     @Scheduled(cron = "0 0 22 * * *")
     public void RemindAboutReports(){
      List<Long> peopleToRemind =  telegramBotUpdatesService.findPeopleToRemind();
-        if(peopleToRemind.size() > 0){
-            peopleToRemind.forEach(p -> sendMessage(p,  "До сдачи отчета осталось немного времени!"));
-        }
+     peopleToRemind.forEach(p -> sendMessage(p,  "До сдачи отчета осталось немного времени!"));
     }
 }

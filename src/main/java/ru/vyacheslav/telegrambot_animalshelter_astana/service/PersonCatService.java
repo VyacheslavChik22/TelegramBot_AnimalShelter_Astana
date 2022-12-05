@@ -16,7 +16,7 @@ import java.util.Optional;
 @Service
 public class PersonCatService {
 
-    private final Logger logger = LoggerFactory.getLogger(PersonDogService.class);
+    private final Logger logger = LoggerFactory.getLogger(PersonCatService.class);
 
     private final PersonCatRepository personCatRepository;
 

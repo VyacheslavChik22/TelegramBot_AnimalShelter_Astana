@@ -1,14 +1,5 @@
 package ru.vyacheslav.telegrambot_animalshelter_astana.service;
 
-import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramBotConstants.CONTACT_DATA_PATTERN;
-
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -18,11 +9,17 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.NoAnimalAdopted
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonAlreadyExistsException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextDoesNotMatchPatternException;
-import ru.vyacheslav.telegrambot_animalshelter_astana.model.AbstractPerson;
-import ru.vyacheslav.telegrambot_animalshelter_astana.model.AnimalType;
-import ru.vyacheslav.telegrambot_animalshelter_astana.model.PersonCat;
-import ru.vyacheslav.telegrambot_animalshelter_astana.model.PersonDog;
-import ru.vyacheslav.telegrambot_animalshelter_astana.model.Report;
+import ru.vyacheslav.telegrambot_animalshelter_astana.model.*;
+
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramBotConstants.CONTACT_DATA_PATTERN;
 
 @Service
 public class TelegramBotUpdatesService {
@@ -142,51 +139,6 @@ public class TelegramBotUpdatesService {
         return reportService.addReport(report);
     }
 
-//    private Report createDogReport(Long chatId, FotoObjectDto fotoObjDto, String caption) {
-//        // Проверить существует ли пользователь в нашей БД по chatId - если нет, то бросить ошибку
-//        PersonDog person = personDogService.findPersonByChatId(chatId).orElseThrow(PersonNotFoundException::new);
-//        // Проверить что у пользователя есть животное
-//        if (person.getAnimal() == null) {
-//            throw new NoAnimalAdoptedException();
-//        }
-//        // Проверить дату последнего отчета у пользователя, если сегодня - бросить ошибку
-//        if (person.getLastReportDate() != null && person.getLastReportDate().isEqual(LocalDate.now())) {
-//            throw new RuntimeException("Report has sent");
-//        }
-//
-//        Report report = getNewReport(fotoObjDto, caption);
-//        report.setPersonDog(person);
-//
-//        person.setLastReportDate(report.getReportDate());
-//
-//        personDogService.updatePerson(person);
-//
-//        return reportService.addReport(report);
-//    }
-//
-//    private Report createCatReport(Long chatId, FotoObjectDto fotoObjDto, String caption) {
-//        // Проверить существует ли пользователь в нашей БД по chatId - если нет, то бросить ошибку
-//        PersonCat personCat = personCatService.findPersonByChatId(chatId).orElseThrow(PersonNotFoundException::new);
-//
-//        // Проверить что у пользователя есть животное
-//        if (personCat.getAnimal() == null) {
-//            throw new NoAnimalAdoptedException();
-//        }
-//        // Проверить дату последнего отчета у пользователя, если сегодня - бросить ошибку
-//        if (personCat.getLastReportDate() != null && personCat.getLastReportDate().isEqual(LocalDate.now())) {
-//            throw new RuntimeException("Report has sent");
-//        }
-//
-//        Report report = getNewReport(fotoObjDto, caption);
-//        report.setPersonCat(personCat);
-//
-//        personCat.setLastReportDate(report.getReportDate());
-//
-//        personCatService.updatePerson(personCat);
-//
-//        return reportService.addReport(report);
-//    }
-
     private Report getNewReport(FotoObjectDto fotoObjDto, String caption) {
         Report report = new Report();
         report.setReportDate(LocalDate.now());
@@ -221,61 +173,6 @@ public class TelegramBotUpdatesService {
             throw new TextDoesNotMatchPatternException();
         }
     }
-
-
-//    private void createPersonCatFromMessage(Long chatId, String messageText) {
-//        if (personCatService.findPersonByChatId(chatId).isPresent()) {
-//            logger.info("Person with {} is already saved in DB", chatId);
-//            throw new PersonAlreadyExistsException();
-//        }
-//        // Parse message text in accordance with the pattern
-//        ContactDataDto contactData = parseText(messageText);
-//        // Create new person entity and set necessary values
-//        PersonCat personCat = new PersonCat();
-//        personCat.setName(contactData.getName());
-//        personCat.setPhone(contactData.getPhone());
-//        personCat.setEmail(contactData.getEmail());
-//        personCat.setAddress(contactData.getAddress());
-//        personCat.setChatId(chatId);
-//        personCatService.createPerson(personCat);
-//    }
-//
-//    private void createPersonDogFromMessage(Long chatId, String messageText) {
-//        if (personDogService.findPersonByChatId(chatId).isPresent()) {
-//            logger.info("Person with {} is already saved in DB", chatId);
-//            throw new PersonAlreadyExistsException();
-//        }
-//        // Parse message text in accordance with the pattern
-//        ContactDataDto contactData = parseText(messageText);
-//        // Create new person entity and set necessary values
-//        PersonDog person = new PersonDog();
-//        person.setName(contactData.getName());
-//        person.setPhone(contactData.getPhone());
-//        person.setEmail(contactData.getEmail());
-//        person.setAddress(contactData.getAddress());
-//        person.setChatId(chatId);
-//        personDogService.createPerson(person);
-//    }
-
-//    private Long countDaysFromAdoptionDog(Long chatId) {
-//        PersonDog person = personDogService.findPersonByChatId(chatId).orElseThrow(PersonNotFoundException::new);
-//
-//        if (person.getAnimal() == null) {
-//            throw new NoAnimalAdoptedException();
-//        }
-//
-//        return ChronoUnit.DAYS.between(person.getAnimalAdoptDate(), LocalDate.now());
-//    }
-//
-//    private Long countDaysFromAdoptionCat(Long chatId) {
-//        PersonCat personCat = personCatService.findPersonByChatId(chatId).orElseThrow(PersonNotFoundException::new);
-//
-//        if (personCat.getAnimal() == null) {
-//            throw new NoAnimalAdoptedException();
-//        }
-//
-//        return ChronoUnit.DAYS.between(personCat.getAnimalAdoptDate(), LocalDate.now());
-//    }
 
     public List<Long> findPeopleToRemind() {
         LocalDate date = LocalDate.now();

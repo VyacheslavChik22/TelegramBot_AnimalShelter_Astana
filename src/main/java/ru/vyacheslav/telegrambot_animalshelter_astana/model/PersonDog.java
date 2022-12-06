@@ -8,16 +8,16 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-//@Table(name = "Person_cat")
-public class PersonCat extends AbstractPerson{
+//@Table(name = "Person")
+public class PersonDog extends AbstractPerson{
     @JsonIgnore
-    @OneToMany(mappedBy = "personCat")
-    private Set<Report> reports;
+    @OneToMany(mappedBy = "personDog")
+    private Set <Report> reports;
 
-    public PersonCat() {
+    public PersonDog() {
     }
 
-    public PersonCat(Long id, String name, String email, String phone, String address, Long chatId, LocalDate animalAdoptDate, LocalDate lastReportDate, Animal animal, Set<Report> reports) {
+    public PersonDog(Long id, String name, String email, String phone, String address, Long chatId, LocalDate animalAdoptDate, LocalDate lastReportDate, Animal animal, Set<Report> reports) {
         super(id, name, email, phone, address, chatId, animalAdoptDate, lastReportDate, animal);
         this.reports = reports;
     }

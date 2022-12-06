@@ -4,20 +4,23 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "Animal_cat")
-public class AnimalCat {
-
+@Table(name = "Volunteer")
+public class Volunteer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    private String email;
+    private String phone;
 
-    public AnimalCat() {
+    public Volunteer() {
     }
 
-    public AnimalCat(Long id, String name) {
+    public Volunteer(Long id, String name, String email, String phone) {
         this.id = id;
         this.name = name;
+        this.email = email;
+        this.phone = phone;
     }
 
     public Long getId() {
@@ -36,24 +39,42 @@ public class AnimalCat {
         this.name = name;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AnimalCat animalCat = (AnimalCat) o;
-        return id.equals(animalCat.id) && name.equals(animalCat.name);
+        Volunteer volunteer = (Volunteer) o;
+        return id.equals(volunteer.id) && name.equals(volunteer.name) && email.equals(volunteer.email) && phone.equals(volunteer.phone);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name);
+        return Objects.hash(id, name, email, phone);
     }
 
     @Override
     public String toString() {
-        return "AnimalCat{" +
+        return "Volunteer{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", phone='" + phone + '\'' +
                 '}';
     }
 }

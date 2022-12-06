@@ -1,15 +1,11 @@
 package ru.vyacheslav.telegrambot_animalshelter_astana.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.Objects;
-import java.util.Set;
 
-@Entity
-@Table(name = "Person")
-public class Person {
+@MappedSuperclass
+public abstract class AbstractPerson {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,36 +17,14 @@ public class Person {
     private LocalDate animalAdoptDate;
     private LocalDate lastReportDate;
 
-
-
     @OneToOne
     @JoinColumn(name = "animal_id")
     private Animal animal;
 
-    public Animal getAnimal() {
-        return animal;
+    public AbstractPerson() {
     }
 
-    public void setAnimal(Animal animal) {
-        this.animal = animal;
-    }
-    @JsonIgnore
-    @OneToMany(mappedBy = "person")
-    private Set <Report> reports;
-
-    public Set<Report> getReports() {
-        return reports;
-    }
-
-    public void setReports(Set<Report> reports) {
-        this.reports = reports;
-    }
-
-    public Person() {
-
-    }
-
-    public Person(Long id, String name, String email, String phone, String address, Long chatId, LocalDate animalAdoptDate, LocalDate lastReportDate, Animal animal, Set<Report> reports) {
+    public AbstractPerson(Long id, String name, String email, String phone, String address, Long chatId, LocalDate animalAdoptDate, LocalDate lastReportDate, Animal animal) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -60,7 +34,6 @@ public class Person {
         this.animalAdoptDate = animalAdoptDate;
         this.lastReportDate = lastReportDate;
         this.animal = animal;
-        this.reports = reports;
     }
 
     public Long getId() {
@@ -127,17 +100,25 @@ public class Person {
         this.lastReportDate = lastReportDate;
     }
 
+    public Animal getAnimal() {
+        return animal;
+    }
+
+    public void setAnimal(Animal animal) {
+        this.animal = animal;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Person person = (Person) o;
-        return Objects.equals(id, person.id) && Objects.equals(name, person.name) && Objects.equals(email, person.email) && Objects.equals(phone, person.phone) && Objects.equals(address, person.address) && Objects.equals(chatId, person.chatId) && Objects.equals(animalAdoptDate, person.animalAdoptDate) && Objects.equals(lastReportDate, person.lastReportDate) && Objects.equals(animal, person.animal) && Objects.equals(reports, person.reports);
+        AbstractPerson that = (AbstractPerson) o;
+        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(email, that.email) && Objects.equals(phone, that.phone) && Objects.equals(address, that.address) && Objects.equals(chatId, that.chatId) && Objects.equals(animalAdoptDate, that.animalAdoptDate) && Objects.equals(lastReportDate, that.lastReportDate) && Objects.equals(animal, that.animal);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, email, phone, address, chatId, animalAdoptDate, lastReportDate, animal, reports);
+        return Objects.hash(id, name, email, phone, address, chatId, animalAdoptDate, lastReportDate, animal);
     }
 
     @Override

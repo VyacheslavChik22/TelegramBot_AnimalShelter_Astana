@@ -12,17 +12,18 @@ import com.pengrad.telegrambot.response.GetFileResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import ru.vyacheslav.telegrambot_animalshelter_astana.dto.FotoObjectDto;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.NoAnimalAdoptedException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonAlreadyExistsException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextDoesNotMatchPatternException;
-import ru.vyacheslav.telegrambot_animalshelter_astana.service.PersonService;
-import ru.vyacheslav.telegrambot_animalshelter_astana.service.ReportService;
+import ru.vyacheslav.telegrambot_animalshelter_astana.model.AnimalType;
+import ru.vyacheslav.telegrambot_animalshelter_astana.service.TelegramBotUpdatesService;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,17 +31,16 @@ import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramB
 
 @Service
 public class TelegramBotUpdatesListener implements UpdatesListener {
+    private AnimalType animalType;
 
-    private final ReportService reportService;
-    private final PersonService personService;
+    private final TelegramBotUpdatesService telegramBotUpdatesService;
 
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
 
     private final TelegramBot telegramBot;
 
-    public TelegramBotUpdatesListener(ReportService reportService, PersonService personService, TelegramBot telegramBot) {
-        this.reportService = reportService;
-        this.personService = personService;
+    public TelegramBotUpdatesListener(TelegramBotUpdatesService telegramBotUpdatesService, TelegramBot telegramBot) {
+        this.telegramBotUpdatesService = telegramBotUpdatesService;
         this.telegramBot = telegramBot;
     }
 
@@ -66,15 +66,15 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
             // Если пользователь отвечает на сообщение о подаче репорта
             // можно проверять ключевое слово из сообщения бота (напрмер фото) вместо команды
-            if (message.replyToMessage() != null && message.replyToMessage().text().equals(REPORT_FORM)) {
+            if (message.replyToMessage() != null && REPORT_FORM.equals(message.replyToMessage().text())) {
                 try {
                     checkIfReportMessageEligible(message.photo(), message.caption());
 
-                    Map<String, Object> fileMap = extractPhotoData(message.photo());
-                    reportService.createReportFromMessage(chatId, fileMap, message.caption());
+                    FotoObjectDto fotoObjDto = extractPhotoData(message.photo());
+                    telegramBotUpdatesService.createReportFromMessage(chatId, fotoObjDto, message.caption(), animalType);
 
                     sendMessage(chatId, "Отчет сохранен");
-                    sendMessage(chatId, "/start");
+                    sendMessage(chatId, "\n" + START);
                     return;
                 } catch (IOException e) {
                     throw new RuntimeException("Проблема с сохранением фото");
@@ -86,17 +86,17 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
             // Если пользователь отвечает на сообщение о своих контактных данных
             // можно проверять ключевое слово из сообщения бота (напрмер почта) вместо команды
-            if (message.replyToMessage() != null && message.replyToMessage().text().equals(CONTACT_TEXT)) {
+            if (message.replyToMessage() != null && CONTACT_TEXT.equals(message.replyToMessage().text())) {
                 try {
-                    personService.createPersonFromMessage(chatId, message.text());
+                    telegramBotUpdatesService.createPersonFromMessage(chatId, message.text(), animalType);
                     sendMessage(chatId, "Контактные данные сохранены");
-                    sendMessage(chatId, "/start");
+                    sendMessage(chatId, "\n" + START);
                     return;
                 } catch (PersonAlreadyExistsException e) {
                     sendMessage(chatId, "Ваши контактные данные уже сохранены");
                     return;
                 } catch (TextDoesNotMatchPatternException e) {
-                    sendMessage(chatId, "Текст не соответствует шаблону, нажмите /repeat и попробуйте еще раз");
+                    sendMessage(chatId, "Текст не соответствует шаблону, нажмите " + REPEAT + " и попробуйте еще раз");
                 }
             }
 
@@ -108,10 +108,12 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
                 case "/menu_Dog":
                     logger.info("Bot start message was received: {}", message.text());
+                    animalType = AnimalType.DOG;
                     sendMessage(chatId, LIST_MENU_DOG);
                     break;
                 case "/menu_Cat":
                     logger.info("Bot start message was received: {}", message.text());
+                    animalType = AnimalType.CAT;
                     sendMessage(chatId, LIST_MENU_CAT);
                     break;
 
@@ -135,11 +137,15 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     break;
 
                 case "/report":
+                    if (animalType == null) {
+                        sendMessage(chatId, "Пожалуйста, перед тем как отправить отчет, выберите /menu_Dog или /menu_Cat");
+                        return;
+                    }
                     logger.info("Bot start message was received: {}", message.text());
                     // Получаем дни с момента получения животного
                     Long daysFromAdoption;
                     try {
-                        daysFromAdoption = personService.countDaysFromAdoption(chatId);
+                        daysFromAdoption = telegramBotUpdatesService.countDaysFromAdoption(chatId, animalType);
                     } catch (PersonNotFoundException | NoAnimalAdoptedException e) {
                         sendMessage(chatId, e.getMessage());
                         return;
@@ -258,13 +264,13 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 case "/advices_cynologist":
                     // Send GREETINGS_MSG if START_CMD was found
                     logger.info("Bot start message was received: {}", message.text());
-                    sendMessage(chatId, ADVICES_CYNOLOGIST);
+                    sendMessage(chatId, ADVICES_TEXT_CYNOLOGIST);
                     break;
 
                 case "/tested_cynologists":
                     // Send GREETINGS_MSG if START_CMD was found
                     logger.info("Bot start message was received: {}", message.text());
-                    sendMessage(chatId, TESTED_CYNOLOGIST);
+                    sendMessage(chatId, TESTED_TEXT_CYNOLOGIST);
                     break;
 
                 default:
@@ -318,7 +324,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * @return {@link Map} with various data extracted from photo file
      * @throws IOException
      */
-    private Map<String, Object> extractPhotoData(PhotoSize[] photoSizes) throws IOException {
+    private FotoObjectDto extractPhotoData(PhotoSize[] photoSizes) throws IOException {
 
         PhotoSize photoObject = photoSizes[1];
 
@@ -328,15 +334,17 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         byte[] fileData = telegramBot.getFileContent(file);
 
         // Form map to transfer to ReportService.createReportFromMessage method
-        Map<String, Object> fileFields = new HashMap<>();
-        fileFields.put("mediaType", fileRequest.getContentType());
-        fileFields.put("photoData", fileData);
-        fileFields.put("photoSize", file.fileSize());
-        fileFields.put("photoPath", file.filePath());
+        FotoObjectDto fotoObjectDto = new FotoObjectDto();
+        fotoObjectDto.setPhotoData(fileData);
+        fotoObjectDto.setPhotoPath(file.filePath());
+        fotoObjectDto.setPhotoSize(file.fileSize());
+        fotoObjectDto.setMediaType(fileRequest.getContentType());
 
-        return fileFields;
+        return fotoObjectDto;
     }
-
-    //@Scheduled(cron = "0 0 * * *") //здесь должен быть метод для напоминания пользователю предоставить отчет
-
+    @Scheduled(cron = "0 0 22 * * *")
+    public void RemindAboutReports(){
+     List<Long> peopleToRemind =  telegramBotUpdatesService.findPeopleToRemind();
+     peopleToRemind.forEach(p -> sendMessage(p,  "До сдачи отчета осталось немного времени!"));
+    }
 }

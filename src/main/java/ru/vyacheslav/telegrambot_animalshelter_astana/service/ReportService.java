@@ -3,6 +3,7 @@ package ru.vyacheslav.telegrambot_animalshelter_astana.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.ReportNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.Report;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.ReportRepository;
@@ -19,7 +20,7 @@ public class ReportService {
     }
 
     /**
-     * adding a report
+     * adding a report in DB
      */
     public Report addReport(Report report) {
         logger.debug("Request method addReport {}:", report);
@@ -28,6 +29,9 @@ public class ReportService {
 
     /**
      * By id. we can find the report
+     *
+     * @param id identification number for report
+     * @throws ReportNotFoundException if no entry was found in DB
      */
     public Report findReport(Long id) {
         logger.debug("Request method findReport {}:", id);
@@ -35,7 +39,7 @@ public class ReportService {
     }
 
     /**
-     * We receive all reports
+     * Finds all reports entries in DB.
      */
     public List<Report> findAllReports() {
         logger.debug("Request method findAllReports:");
@@ -43,9 +47,10 @@ public class ReportService {
     }
 
 
-
     /**
-     * Editing and saving report
+     * Editing and saving report in DB
+     *
+     * @param id identification number for report
      */
     public Report editReport(Long id, Report report) {
         logger.debug("Request method editReport {}:", report);
@@ -53,14 +58,14 @@ public class ReportService {
     }
 
     /**
-     * By id. delete report
+     * By id delete report
+     *
+     * @param id identification number for report
      */
     public void deleteById(Long id) {
         logger.debug("Request method deleteById {}:", id);
         reportRepository.deleteById(id);
     }
-
-
 
 }
 

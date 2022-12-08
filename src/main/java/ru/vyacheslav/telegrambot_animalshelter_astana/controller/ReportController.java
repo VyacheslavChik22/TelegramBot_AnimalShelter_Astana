@@ -40,9 +40,6 @@ public class ReportController {
                     )
             })
 
-    /**
-     * We receive all reports
-     */
     @GetMapping()
     public List<Report> getAllReports() {
         return reportService.findAllReports();
@@ -63,9 +60,7 @@ public class ReportController {
                             )
                     )
             })
-    /**
-     * Getting a report by id
-     */
+
     @GetMapping("/{id}")
     public ResponseEntity<Report> getReportInfo(@Parameter(description = "Полученный по id отчет") @PathVariable Long id) {
         Report report = reportService.findReport(id);
@@ -89,9 +84,7 @@ public class ReportController {
                             )
                     )
             })
-    /**
-     * Editing the report
-     */
+
     @PutMapping("/{id}")
     public ResponseEntity<Report> editReport(@Parameter(description = "Редактируемый отчет") @PathVariable Long id, Report report) {
         Report foundReport = reportService.editReport(id, report);
@@ -115,9 +108,7 @@ public class ReportController {
                             )
                     )
             })
-    /**
-     * Delete the report
-     */
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Report> deleteReport(@Parameter(description = "Удаляемый отчет") @PathVariable Long id) {
         if (id <= 0) {

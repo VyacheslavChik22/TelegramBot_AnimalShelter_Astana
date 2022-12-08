@@ -58,7 +58,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             // If the server connection was lost, then message object can be null
             // So we ignore it in this case
 
-            if (message == null || message.text()==null && message.replyToMessage() == null) {
+            if (message == null || message.text() == null && message.replyToMessage() == null) {
                 return;
             }
 
@@ -99,7 +99,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     sendMessage(chatId, "Текст не соответствует шаблону, нажмите " + REPEAT + " и попробуйте еще раз");
                 }
             }
-
+            // bot actions on user commands
             switch (message.text()) {
                 case "/start":
                     logger.info("Bot start message was received: {}", message.text());
@@ -304,7 +304,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * If something missed - throw exception.
      *
      * @param photoSizes telegram's object represents photo-file from a message
-     * @param caption text field from a message with photo
+     * @param caption    text field from a message with photo
      * @throws RuntimeException with description which param is null
      */
     private void checkIfReportMessageEligible(PhotoSize[] photoSizes, String caption) {
@@ -342,9 +342,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
         return fotoObjectDto;
     }
+
+    // Report sending reminder method
     @Scheduled(cron = "0 0 22 * * *")
-    public void RemindAboutReports(){
-     List<Long> peopleToRemind =  telegramBotUpdatesService.findPeopleToRemind();
-     peopleToRemind.forEach(p -> sendMessage(p,  "До сдачи отчета осталось немного времени!"));
+    public void RemindAboutReports() {
+        List<Long> peopleToRemind = telegramBotUpdatesService.findPeopleToRemind();
+        peopleToRemind.forEach(p -> sendMessage(p, "До сдачи отчета осталось немного времени!"));
     }
 }

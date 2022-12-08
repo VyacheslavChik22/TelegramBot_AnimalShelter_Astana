@@ -48,7 +48,7 @@ public class TelegramBotConstants {
 
     public static final String NO_MORE_REPORTS = "Вам больше не нужно присылать отчеты!";
 
-    // У меня в боте меню красиво выглядит благодаря такой невыравненности здесь.
+
     public static final String LIST_MENU_DOG =
             "/info_shelterDog   -  Узнать информацию о приюте для собак\n" +
                     HOW_TO_ADOPT_DOG + "    - Как взять собаку из приюта\n" +

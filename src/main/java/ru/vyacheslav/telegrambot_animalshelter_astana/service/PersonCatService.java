@@ -25,7 +25,7 @@ public class PersonCatService {
     }
 
     /**
-     * Finds all entries in DB.
+     * Finds all persons with cats entries in DB.
      *
      * @return unmodifiable collection
      */
@@ -35,7 +35,7 @@ public class PersonCatService {
     }
 
     /**
-     * Finds record for person in DB.
+     * Finds record for person with cats in DB.
      *
      * @param id identification number for person
      * @return person model
@@ -46,11 +46,22 @@ public class PersonCatService {
         return personCatRepository.findById(id).orElseThrow(PersonNotFoundException::new);
     }
 
+    /**
+     * Creating of new personCat in DB
+     *
+     * @param personCat
+     * @return PersonCat created
+     */
     public PersonCat createPerson(PersonCat personCat) {
         logger.info("Was invoked method for create person");
         return personCatRepository.save(personCat);
     }
 
+    /**
+     * Update person with cats from the DB and save
+     *
+     * @throws PersonNotFoundException if no entry was found in DB
+     */
     public PersonCat updatePerson(PersonCat personCat) {
         logger.info("Was invoked method for update person");
         if (personCat.getId() == null || !personCatRepository.existsById(personCat.getId())) {
@@ -61,7 +72,7 @@ public class PersonCatService {
     }
 
     /**
-     * Delete person from the DB
+     * Delete person with cats from the DB
      *
      * @param id identification number for person
      * @throws PersonNotFoundException if no entry was found in DB
@@ -73,7 +84,7 @@ public class PersonCatService {
     }
 
     /**
-     * Find record for person by chatId.
+     * Find record for person with cats by chatId.
      *
      * @param chatId telegram chat identification number
      * @return Optional of person
@@ -82,6 +93,9 @@ public class PersonCatService {
         return personCatRepository.findPersonByChatId(chatId);
     }
 
+    /**
+     * Find all persons with cats, who do not have a report today
+     */
     public List<PersonCat> findAllByLastReportDateBefore(LocalDate date) {
         logger.info("Was invoked method to find all cat people with last report date before {}", date);
         return personCatRepository.findAllByLastReportDateBeforeOrLastReportDateIsNullAndAnimalIsNotNull(date);

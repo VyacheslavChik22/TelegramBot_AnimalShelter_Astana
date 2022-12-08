@@ -49,11 +49,19 @@ public class PersonDogService {
         return personDogRepository.findById(id).orElseThrow(PersonNotFoundException::new);
     }
 
+    /**
+     * Create person with dog in DB and save
+     */
     public PersonDog createPerson(PersonDog person) {
         logger.info("Was invoked method for create person");
         return personDogRepository.save(person);
     }
 
+    /**
+     * Update person with dog from the DB and save
+     *
+     * @throws PersonNotFoundException if no entry was found in DB
+     */
     public PersonDog updatePerson(PersonDog person) {
         logger.info("Was invoked method for update person");
         if (person.getId() == null || !personDogRepository.existsById(person.getId())) {
@@ -63,6 +71,9 @@ public class PersonDogService {
         return personDogRepository.save(person);
     }
 
+    /**
+     * Find all persons with dogs, who do not have a report today
+     */
     public List<PersonDog> findAllByLastReportDateBefore(LocalDate date) {
         logger.info("Was invoked method to find all dog people with last report date before {}", date);
         return personDogRepository.findAllByLastReportDateBeforeOrLastReportDateIsNullAndAnimalIsNotNull(date);
@@ -71,7 +82,7 @@ public class PersonDogService {
     /**
      * Delete person from the DB
      *
-     * @param id identification number for person
+     * @param id identification number for person with dog
      * @throws PersonNotFoundException if no entry was found in DB
      */
     public void deletePerson(long id) {
@@ -81,10 +92,10 @@ public class PersonDogService {
     }
 
     /**
-     * Find record for person by chatId.
+     * Find record for person with dog by chatId.
      *
      * @param chatId telegram chat identification number
-     * @return Optional of person
+     * @return Optional of person with dog
      */
     public Optional<PersonDog> findPersonByChatId(Long chatId) {
         return personDogRepository.findPersonByChatId(chatId);

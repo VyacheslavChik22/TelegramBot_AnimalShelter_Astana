@@ -14,7 +14,8 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.model.Animal;
 import ru.vyacheslav.telegrambot_animalshelter_astana.repository.AnimalRepository;
 import ru.vyacheslav.telegrambot_animalshelter_astana.service.AnimalService;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;

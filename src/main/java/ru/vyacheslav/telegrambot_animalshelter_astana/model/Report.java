@@ -11,7 +11,7 @@ import java.util.Objects;
  *
  */
 @Entity
-@Table(name = "Report")
+//@Table(name = "Report")
 public class Report {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,15 +30,27 @@ public class Report {
     }
 
     @ManyToOne
-    @JoinColumn(name = "person_id")
-    private Person person;
+    @JoinColumn(name = "person_dog_id")
+    private PersonDog personDog;
 
-    public Person getPerson() {
-        return person;
+    @ManyToOne
+    @JoinColumn(name = "person_cat_id")
+    private PersonCat personCat;
+
+    public PersonDog getPersonDog() {
+        return personDog;
     }
 
-    public void setPerson(Person person) {
-        this.person = person;
+    public void setPersonDog(PersonDog person) {
+        this.personDog = person;
+    }
+
+    public PersonCat getPersonCat() {
+        return personCat;
+    }
+
+    public void setPersonCat(PersonCat personCat) {
+        this.personCat = personCat;
     }
 
     public Report(Long id, String photoPath, Integer photoSize, String mediaType, byte[] photoData, String description, LocalDate reportDate) {

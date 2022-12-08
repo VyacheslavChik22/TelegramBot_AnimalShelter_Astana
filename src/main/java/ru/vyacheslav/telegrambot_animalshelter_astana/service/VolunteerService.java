@@ -24,6 +24,7 @@ public class VolunteerService {
 
     /**
      * Creating of new volunteer in DB
+     *
      * @param volunteer
      * @return Volunteer created
      */
@@ -35,9 +36,10 @@ public class VolunteerService {
     /**
      * Search for volunteer in DB by ID
      * The repository method is being used{@link JpaRepository#findById(Object)}
+     *
      * @param id - volunteer ID, can't be {@code null}
-     * @throws VolunteerNotFoundException if no entry was found in DB
      * @return Volunteer found
+     * @throws VolunteerNotFoundException if no entry was found in DB
      */
     public Volunteer getVolunteerInfoById(Long id) {
         logger.info("Was invoked method to get volunteer by ID: {}", id);
@@ -45,7 +47,8 @@ public class VolunteerService {
     }
 
     /**
-     *List of all volunteers in the shelter
+     * List of all volunteers in the shelter
+     *
      * @return List of volunteers
      */
     public Collection<Volunteer> getAllVolunteers() {
@@ -55,10 +58,11 @@ public class VolunteerService {
 
     /**
      * Delete animal from DB
+     *
      * @param id
      * @throws AnimalNotFoundException if no entry was found in DB
      */
-    public void deleteVolunteer(Long id){
+    public void deleteVolunteer(Long id) {
         logger.info("Was invoked method to delete volunteer with ID: {}", id);
         Volunteer volunteer = getVolunteerInfoById(id);
         volunteerRepository.delete(volunteer);

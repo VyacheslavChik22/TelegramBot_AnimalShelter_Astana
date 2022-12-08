@@ -3,6 +3,7 @@ package ru.vyacheslav.telegrambot_animalshelter_astana.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.vyacheslav.telegrambot_animalshelter_astana.dto.ContactDataDto;
 import ru.vyacheslav.telegrambot_animalshelter_astana.dto.FotoObjectDto;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.NoAnimalAdoptedException;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramBotConstants.CONTACT_DATA_PATTERN;
 
 @Service
+@Transactional
 public class TelegramBotUpdatesService {
 
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesService.class);
@@ -37,12 +39,13 @@ public class TelegramBotUpdatesService {
         this.reportService = reportService;
     }
 
-    /** Creates personDog or personCat entity from the text message and saves it in DB
+    /**
+     * Creates personDog or personCat entity from the text message and saves it in DB
      *
      * @param chatId      chat identification number from the telegram {@link com.pengrad.telegrambot.model.Message} object
      * @param messageText text from the telegram {@link com.pengrad.telegrambot.model.Message} object
-     * @param animalType type of animal from enum {@link AnimalType}
-     * @throws PersonAlreadyExistsException if DB contains entry with such chatId
+     * @param animalType  type of animal from enum {@link AnimalType}
+     * @throws PersonAlreadyExistsException     if DB contains entry with such chatId
      * @throws TextDoesNotMatchPatternException if text doesn't match the pattern
      */
     public void createPersonFromMessage(Long chatId, String messageText, AnimalType animalType) {
@@ -106,10 +109,9 @@ public class TelegramBotUpdatesService {
     /**
      * Creates report entity with text and photo file data, and saves it in DB
      *
-
-     * @param chatId chat identification number from the telegram {@link com.pengrad.telegrambot.model.Message} object
+     * @param chatId        chat identification number from the telegram {@link com.pengrad.telegrambot.model.Message} object
      * @param fotoObjectDto map which contains key-value pairs with photo file data
-     * @param caption text from the telegram message with photo file
+     * @param caption       text from the telegram message with photo file
      * @return report entity
      * @throws PersonNotFoundException  when there is no person with such chatId in DB
      * @throws NoAnimalAdoptedException if person doesn't have adopted animal
@@ -122,7 +124,7 @@ public class TelegramBotUpdatesService {
         if (person.getAnimal() == null) {
             throw new NoAnimalAdoptedException();
         }
-        // Проверить дату последнего отчета у пользователя, если сегодня - бросить ошибку
+        // Check last report date from user, if today - throw error
         if (person.getLastReportDate() != null && person.getLastReportDate().isEqual(LocalDate.now())) {
             throw new RuntimeException("Report has sent");
         }
@@ -139,6 +141,11 @@ public class TelegramBotUpdatesService {
         return reportService.addReport(report);
     }
 
+    /**
+     * Get new report from user
+     *
+     * @return report
+     */
     private Report getNewReport(FotoObjectDto fotoObjDto, String caption) {
         Report report = new Report();
         report.setReportDate(LocalDate.now());
@@ -174,6 +181,7 @@ public class TelegramBotUpdatesService {
         }
     }
 
+    //Find people who did not send the report on time for a reminder to submit the report
     public List<Long> findPeopleToRemind() {
         LocalDate date = LocalDate.now();
         List<PersonDog> dogPeopleNoReports = personDogService.findAllByLastReportDateBefore(date);
@@ -184,6 +192,6 @@ public class TelegramBotUpdatesService {
         peopleWithoutReports.addAll(catPeopleNoReports.stream().map(PersonCat::getChatId).collect(Collectors.toList()));
         logger.info("Total number of people to remind about report: {}", peopleWithoutReports.size());
 
-       return peopleWithoutReports;
+        return peopleWithoutReports;
     }
 }

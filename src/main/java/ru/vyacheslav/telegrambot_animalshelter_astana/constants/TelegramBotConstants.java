@@ -7,6 +7,7 @@ public class TelegramBotConstants {
     public static final String START_MENU_DOG = "/menu_Dog";
     public static final String START_MENU_CAT = "/menu_Cat";
     public static final String HOW_TO_ADOPT_DOG = "/how_to_adopt_a_Dog";
+    public static final String HOW_TO_ADOPT_CAT = "/how_to_adopt_a_Cat";
     public static final String REPORT = "/report";
     public static final String CALL = "/call";
     public static final String CONTACT = "/contact";
@@ -25,12 +26,12 @@ public class TelegramBotConstants {
 
     //for cats
 
-    public static final String ACQUAINTANCE_CAT = "/acquaintance_Dog";
-    public static final String DOCUMENTS_CAT = "/documents_Dog";
-    public static final String TRANSPORTATION_CAT = "/transportation_Dog";
-    public static final String ADVICE_LITTLE_CAT = "/advice_little_Dog";
-    public static final String ADVICE_BIG_CAT = "/advice_big_Dog";
-    public static final String ADVICE_LIMITED_CAT = "/advices_limited_Dog";
+    public static final String ACQUAINTANCE_CAT = "/acquaintance_Cat";
+    public static final String DOCUMENTS_CAT = "/documents_Cat";
+    public static final String TRANSPORTATION_CAT = "/transportation_Cat";
+    public static final String ADVICE_LITTLE_CAT = "/advice_little_Cat";
+    public static final String ADVICE_BIG_CAT = "/advice_big_Cat";
+    public static final String ADVICE_LIMITED_CAT = "/advices_limited_Cat";
 
 
     //*************************************--Menu-1---*************************
@@ -59,7 +60,7 @@ public class TelegramBotConstants {
 
     public static final String LIST_MENU_CAT =
             "/info_shelterCat   -  Узнать информацию о приюте для кошек\n" +
-                    HOW_TO_ADOPT_DOG + "   - Как взять кошку из приюта\n" +
+                    HOW_TO_ADOPT_CAT + "   - Как взять кошку из приюта\n" +
                     REPORT + " - Прислать отчет о питомце\n" +
                     CALL + "      - Позвать волонтера\n" +
                     CONTACT + " - Ваши контакты\n" +

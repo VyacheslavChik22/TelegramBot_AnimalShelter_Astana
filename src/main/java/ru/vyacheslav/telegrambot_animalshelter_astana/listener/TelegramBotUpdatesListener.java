@@ -20,6 +20,7 @@ import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonAlreadyEx
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.PersonNotFoundException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.TextDoesNotMatchPatternException;
 import ru.vyacheslav.telegrambot_animalshelter_astana.model.AnimalType;
+import ru.vyacheslav.telegrambot_animalshelter_astana.service.PersonContextService;
 import ru.vyacheslav.telegrambot_animalshelter_astana.service.TelegramBotUpdatesService;
 
 import javax.annotation.PostConstruct;
@@ -31,16 +32,17 @@ import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramB
 
 @Service
 public class TelegramBotUpdatesListener implements UpdatesListener {
-    private AnimalType animalType;
 
     private final TelegramBotUpdatesService telegramBotUpdatesService;
+    private final PersonContextService personContextService;
 
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
 
     private final TelegramBot telegramBot;
 
-    public TelegramBotUpdatesListener(TelegramBotUpdatesService telegramBotUpdatesService, TelegramBot telegramBot) {
+    public TelegramBotUpdatesListener(TelegramBotUpdatesService telegramBotUpdatesService, PersonContextService personContextService, TelegramBot telegramBot) {
         this.telegramBotUpdatesService = telegramBotUpdatesService;
+        this.personContextService = personContextService;
         this.telegramBot = telegramBot;
     }
 
@@ -68,6 +70,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             // можно проверять ключевое слово из сообщения бота (напрмер фото) вместо команды
             if (message.replyToMessage() != null && REPORT_FORM.equals(message.replyToMessage().text())) {
                 try {
+                    AnimalType animalType = personContextService.getAnimalType(chatId);
                     checkIfReportMessageEligible(message.photo(), message.caption());
 
                     FotoObjectDto fotoObjDto = extractPhotoData(message.photo());
@@ -88,6 +91,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             // можно проверять ключевое слово из сообщения бота (напрмер почта) вместо команды
             if (message.replyToMessage() != null && CONTACT_TEXT.equals(message.replyToMessage().text())) {
                 try {
+                    AnimalType animalType = personContextService.getAnimalType(chatId);
                     telegramBotUpdatesService.createPersonFromMessage(chatId, message.text(), animalType);
                     sendMessage(chatId, "Контактные данные сохранены");
                     sendMessage(chatId, "\n" + START);
@@ -103,17 +107,18 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             switch (message.text()) {
                 case "/start":
                     logger.info("Bot start message was received: {}", message.text());
+                    personContextService.updatePersonContext(chatId, null);
                     sendMessage(chatId, update.message().chat().username() + ", " + GREETING_MSG);
                     break;
 
                 case "/menu_Dog":
                     logger.info("Bot start message was received: {}", message.text());
-                    animalType = AnimalType.DOG;
+                    personContextService.updatePersonContext(chatId, AnimalType.DOG);
                     sendMessage(chatId, LIST_MENU_DOG);
                     break;
                 case "/menu_Cat":
                     logger.info("Bot start message was received: {}", message.text());
-                    animalType = AnimalType.CAT;
+                    personContextService.updatePersonContext(chatId, AnimalType.CAT);
                     sendMessage(chatId, LIST_MENU_CAT);
                     break;
 
@@ -137,6 +142,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     break;
 
                 case "/report":
+                    AnimalType animalType = personContextService.getAnimalType(chatId);
                     if (animalType == null) {
                         sendMessage(chatId, "Пожалуйста, перед тем как отправить отчет, выберите /menu_Dog или /menu_Cat");
                         return;

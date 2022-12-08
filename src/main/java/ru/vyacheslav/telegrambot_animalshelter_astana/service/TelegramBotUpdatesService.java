@@ -3,6 +3,7 @@ package ru.vyacheslav.telegrambot_animalshelter_astana.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.vyacheslav.telegrambot_animalshelter_astana.dto.ContactDataDto;
 import ru.vyacheslav.telegrambot_animalshelter_astana.dto.FotoObjectDto;
 import ru.vyacheslav.telegrambot_animalshelter_astana.exceptions.NoAnimalAdoptedException;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 import static ru.vyacheslav.telegrambot_animalshelter_astana.constants.TelegramBotConstants.CONTACT_DATA_PATTERN;
 
 @Service
+@Transactional
 public class TelegramBotUpdatesService {
 
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesService.class);
